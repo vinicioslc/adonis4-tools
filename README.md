@@ -1,4 +1,4 @@
-# Legacy AdonisJS Language Server
+# AdonisJS Language Server (Legacy)
 
 Provide for legacy adonisjs, autocomplete for services classes to increase development speed, with basic language server.
 
