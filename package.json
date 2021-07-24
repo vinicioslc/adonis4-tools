@@ -3,7 +3,7 @@
   "description": "Adonis4 Tools linke import type definitions and so on",
   "author": "Vinicios Clarindo <vinicioslc@outlook.com>",
   "license": "MIT",
-  "version": "0.1.0",
+  "version": "0.1.2",
   "repository": {
     "type": "git",
     "url": "https://github.com/vinicioslc/adonis4-tools"
@@ -21,7 +21,8 @@
     "onLanguage:typescript",
     "onCommand:adonis4_tools.pick_file"
   ],
-  "main": "./client/out/extension",
+  "icon": "media/icon.png",
+  "main": "./out/index",
   "contributes": {
     "configuration": {
       "type": "object",
@@ -69,8 +70,10 @@
   "devDependencies": {
     "@types/mocha": "^8.2.2",
     "@types/node": "^12.12.0",
+    "@types/vscode": "^1.58.1",
     "@typescript-eslint/eslint-plugin": "^4.23.0",
     "@typescript-eslint/parser": "^4.23.0",
+    "@vscode/test-electron": "^1.6.1",
     "eslint": "^7.26.0",
     "mocha": "^8.3.2",
     "typescript": "^4.3.5"

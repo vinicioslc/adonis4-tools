@@ -32,9 +32,9 @@ export default class ImportStatementWritter {
 
 
 		const template = `
-/** @typedef {import('${realRelativePath}')} ${classInfo.onlyName}*/
-/** @type {${classInfo.onlyName}}*/
-const ${classInfo.onlyName} = use('${usePath}')
+/** @typedef {import('${realRelativePath}')} ${classInfo.onlyName()}*/
+/** @type {${classInfo.onlyName()}}*/
+const ${classInfo.onlyName()} = use('${usePath}')
 
 `;
 		return template;

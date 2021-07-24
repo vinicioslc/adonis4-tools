@@ -8,13 +8,12 @@ import FilePickerPresenter from '../presenters/FilePickerPresenter';
 
 
 const mapToQuickPickItem = (value: ClassMetaInfo) => {
-	return {
-		label: value.onlyName,
-		description: value.type || "module",
+	const item: QuickPickItem = {
+		label: value.name,
+		description: value.type,
 		detail: value.path,
-		fsPath: value.path,
-		dirPath: value.path
-	} as QuickPickItem;
+	};
+	return item;
 };
 
 
@@ -32,12 +31,16 @@ export default class ListAdonisClasses {
 
 	async execute() {
 
+
 		const items = await this.#classesResolver.findClasses(
 			'**/app/**',
 			'!**/app/**');
 
 		const quickPickItems = items.map(mapToQuickPickItem);
+		console.warn("Showing class picker", quickPickItems);
+
 		const classPicked = await this.#filePicker.showClassPicker(quickPickItems);
+		console.warn("Class picked", classPicked);
 
 		if (classPicked) {
 			this.#importStatementWritter.writeImportStatement(classPicked);

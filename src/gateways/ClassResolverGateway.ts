@@ -23,12 +23,7 @@ export default class ClassResolverGateway {
 
 	async findClasses(include: GlobPattern, exclude?: GlobPattern): Promise<ClassMetaInfo[]> {
 		return (await this.#findFilesFunc(include, exclude)).map(val => {
-			const classMetainfo = {
-				name: path.basename(val.fsPath),
-				type: classifySymbolType(val.fsPath),
-				path: val.fsPath
-			};
-			return classMetainfo as ClassMetaInfo;
+			return new ClassMetaInfo(path.basename(val.fsPath), val.fsPath, classifySymbolType(val.fsPath));
 		});
 	}
 
