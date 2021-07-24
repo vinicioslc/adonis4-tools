@@ -1,14 +1,14 @@
 {
   "name": "adonis4-tools",
-  "description": "A language server example",
-  "author": "Vinicios Clarindo",
+  "description": "Adonis4 Tools linke import type definitions and so on",
+  "author": "Vinicios Clarindo <vinicioslc@outlook.com>",
   "license": "MIT",
   "version": "0.1.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/vinicioslc/adonis4-tools"
   },
-  "publisher": "vinicioslc@outlook.com",
+  "publisher": "vinicioslc",
   "categories": [],
   "keywords": [
     "multi-root ready"
@@ -75,7 +75,5 @@
     "mocha": "^8.3.2",
     "typescript": "^4.3.5"
   },
-  "dependencies": {
-    "n-readlines": "^1.0.1"
-  }
+  "dependencies": {}
 }
