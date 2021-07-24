@@ -3,7 +3,7 @@
   "description": "Adonis4 Tools that add typing to imported services using hotkey",
   "author": "Vinicios Clarindo <vinicioslc@outlook.com>",
   "license": "MIT",
-  "version": "99.100.0",
+  "version": "0.1.4",
   "repository": {
     "type": "git",
     "url": "https://github.com/vinicioslc/adonis4-tools"
@@ -72,6 +72,8 @@
     "release:major": "standard-version --release-as major"
   },
   "devDependencies": {
+    "@commitlint/cli": "^13.1.0",
+    "@commitlint/config-conventional": "^13.1.0",
     "@types/mocha": "^8.2.2",
     "@types/node": "^12.12.0",
     "@types/vscode": "^1.58.1",
@@ -79,9 +81,15 @@
     "@typescript-eslint/parser": "^4.23.0",
     "@vscode/test-electron": "^1.6.1",
     "eslint": "^7.26.0",
+    "husky": "^7.0.1",
     "mocha": "^8.3.2",
     "standard-version": "^9.3.1",
     "typescript": "^4.3.5"
   },
-  "dependencies": {}
+  "dependencies": {},
+  "husky": {
+    "hooks": {
+      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
+    }
+  }
 }

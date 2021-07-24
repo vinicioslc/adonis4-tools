@@ -4,8 +4,8 @@ env:
   VSCE_DEPLOY_TOKEN: ${{ secrets.VSCE_DEPLOY_TOKEN }} # set visual studio deploy token globally
 on:
   push:
-    tags:
-      - prod-v*.*.*
+    branches:
+      - main
 jobs:
   publish:
     name: Deploy extension to production, with node ${{ matrix.node_version }} on ${{ matrix.os }}
@@ -21,21 +21,24 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: ${{ matrix.node_version }}
-
-      - name: Extract version from tag name
-        uses: little-core-labs/get-git-tag@v3.0.2 # that generate $GIT_TAG_NAME env follows semantic versioning
-        id: tagName
-        with:
-          tagRegex: "prod-v([0-9]+.[0-9]+.[0-9]+)" # Optional. Returns specified group text as tag name. Full tag string is returned if regex is not defined.
-          tagRegexGroup: 1 # Optional. Default is 1.
-
-      - name: Replace package.json version with tag version
+      - name: Set enviroment variables
+        id: vars
+        # will be available at title: ${{ steps.vars.outputs.pr_title }}
         run: |
-          sed -i 's/99.99.99/'$GIT_TAG_NAME'/g' package.json|
-          echo "Tag version used:"$GIT_TAG_NAME
-
+          echo ::set-output name=package_version::$(grep '"version"' package.json | cut -d '"' -f 4 | head -n 1)
+          echo "Current version ${{ steps.vars.outputs.package_version }}"
+          echo ::set-output name=changes_summary::$(sed --expression='1,/##/d;/### 0.1/Q' CHANGELOG.md)
+          echo "Current changes ${{ steps.vars.outputs.changes_summary }}"
       - name: npm install and publish
         run: |
           npm install
           npm test
           npm run publish
+      # Generate release at releases page
+      - uses: ncipollo/release-action@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          artifacts: "*.vsix"
+          name: ${{ steps.vars.outputs.package_version }}
+          body: ${{ steps.vars.outputs.changes_summary }}
+          tag: ${{ steps.vars.outputs.package_version }}
