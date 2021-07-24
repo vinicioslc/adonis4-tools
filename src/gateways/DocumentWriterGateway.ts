@@ -31,7 +31,7 @@ export default class DocumentWriterGateway {
 		const FIRST_LINE = 1;
 		const INITIAL_LINE = isUseStrictFile ? AFTER_USE_STRICT : FIRST_LINE;
 		let lineToInsert = INITIAL_LINE;
-		let idxLine = INITIAL_LINE;
+		let idxLine = 1;
 		while (lineToInsert === INITIAL_LINE && idxLine < textDocument.lineCount) {
 			if (textDocument.lineAt(idxLine).isEmptyOrWhitespace) {
 				lineToInsert = idxLine; // line to insert is equal empty_line `-1`
