@@ -109,3 +109,6 @@ dist
 
 # Deploy Files
 *.vsix
+
+# Test binaries
+.vscode-test/
