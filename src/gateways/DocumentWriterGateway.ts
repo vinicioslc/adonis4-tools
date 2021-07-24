@@ -31,14 +31,14 @@ export default class DocumentWriterGateway {
 		const FIRST_LINE = 1;
 		const INITIAL_LINE = isUseStrictFile ? AFTER_USE_STRICT : FIRST_LINE;
 		let lineToInsert = INITIAL_LINE;
-		let linePointer = INITIAL_LINE;
-		while (lineToInsert === INITIAL_LINE && lineToInsert < textDocument.lineCount) {
-			console.log('SCANNED', linePointer, textDocument.lineAt(linePointer).isEmptyOrWhitespace, textDocument.lineAt(linePointer).text);
-
-			if (textDocument.lineAt(linePointer).isEmptyOrWhitespace) {
-				lineToInsert = linePointer; // line to insert is equal empty_line `-1`
+		let idxLine = INITIAL_LINE;
+		while (lineToInsert === INITIAL_LINE && idxLine < textDocument.lineCount) {
+			if (textDocument.lineAt(idxLine).isEmptyOrWhitespace) {
+				lineToInsert = idxLine; // line to insert is equal empty_line `-1`
+			} else if (textDocument.lineAt(idxLine).text.match(/class/mi) || textDocument.lineAt(idxLine).text.match(/export/mi)) {
+				lineToInsert = idxLine; // line to insert is equal empty_line `-1`
 			}
-			linePointer++;
+			idxLine++;
 		}
 		return lineToInsert;
 	}
