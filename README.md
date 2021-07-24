@@ -2,7 +2,7 @@
 
 Provide for legacy adonisjs, autocomplete for services classes to increase development speed, with basic language server.
 
-<div style="text-align:center"><img src="https://raw.githubusercontent.com/vinicioslc/adonis4-toolbox/main/media/icon.png" width="200" /></div>
+<div style="text-align:center"><img src="https://raw.githubusercontent.com/vinicioslc/adonis4-tools/main/media/icon.png" width="200" /></div>
 
 ## Features
 
