@@ -1,16 +1,17 @@
-# AdonisJS Language Server (Legacy)
+# Adonis4 Tools
 
 Provide for legacy adonisjs, autocomplete for services classes to increase development speed, with basic language server.
 
 ## Features
 
-[x] Services AutoCompletion
-[x] Models AutoCompletion
-[ ] AutoCompletion automatically use @typedef for add intellisense
-[ ] Controllers AutoCompletion
-[ ] Route Controllers Validation If Exists
-[ ] Route Validators Auto Complete
-[ ] Route Validators Validation If Exists
+- [x] Import and automatically use @typedef for add intellisense
+
+  - Ctrl+Shift+A open import menu
+
+- [ ] Autocomplete for providers and @typedef
+
+- [ ] GoToController when hover on Route Definitions strings
+- [ ] Go to service implementation when click on controllers
 
 ## Based on
 
