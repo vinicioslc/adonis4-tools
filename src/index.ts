@@ -8,7 +8,7 @@
 import { workspace, ExtensionContext, commands, window } from 'vscode';
 
 import ClassResolverGateway from './gateways/ClassResolverGateway';
-import ImportStatementWritter from './gateways/ImportWritterGateway';
+import DocumentWriterGateway from './gateways/DocumentWriterGateway';
 import FilePicker from './presenters/FilePickerPresenter';
 import UserSelectAdonisClassCase from './use-cases/UserSelectAdonisClassCase';
 
@@ -21,8 +21,8 @@ export function activate(context: ExtensionContext) {
 		commands.registerCommand("adonis4_tools.pick_file", async () => {
 			const picker = new FilePicker(window.showQuickPick);
 			const resolver = new ClassResolverGateway(workspace.findFiles);
-			const importWritter = new ImportStatementWritter(window.activeTextEditor);
-			return await (new UserSelectAdonisClassCase(picker, resolver, importWritter)).execute();
+			const documentWritter = new DocumentWriterGateway(window.activeTextEditor);
+			return await (new UserSelectAdonisClassCase(picker, resolver, documentWritter)).execute();
 		})
 	);
 	console.log("Adonis Require Initialized");
