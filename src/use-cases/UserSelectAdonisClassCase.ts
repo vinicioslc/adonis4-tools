@@ -2,7 +2,7 @@ import { QuickPickItem, } from 'vscode';
 import { ClassMetaInfo } from '../domain/ClassMetadata';
 
 import ClassResolverGateway from '../gateways/ClassResolverGateway';
-import ImportStatementWritter from '../gateways/ImportWritterGateway';
+import DocumentWriterGateway from '../gateways/DocumentWriterGateway';
 import FilePickerPresenter from '../presenters/FilePickerPresenter';
 
 
@@ -20,10 +20,10 @@ const mapToQuickPickItem = (value: ClassMetaInfo) => {
 export default class ListAdonisClasses {
 	#filePicker: FilePickerPresenter;
 	#classesResolver: ClassResolverGateway;
-	#importStatementWritter: ImportStatementWritter;
+	#importStatementWritter: DocumentWriterGateway;
 
 
-	constructor(filePickerInstance: FilePickerPresenter, classesResolver: ClassResolverGateway, importStatementWritter: ImportStatementWritter) {
+	constructor(filePickerInstance: FilePickerPresenter, classesResolver: ClassResolverGateway, importStatementWritter: DocumentWriterGateway) {
 		this.#filePicker = filePickerInstance;
 		this.#classesResolver = classesResolver;
 		this.#importStatementWritter = importStatementWritter;
