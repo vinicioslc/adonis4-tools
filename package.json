@@ -64,7 +64,8 @@
     "vscode:prepublish": "npm run compile",
     "compile": "tsc -b",
     "watch": "tsc -b -w",
-    "test": "sh ./scripts/e2e.sh"
+    "test": "echo 'SUCCESS'",
+    "publish": "npx vsce publish -p $VSCE_DEPLOY_TOKEN"
   },
   "devDependencies": {
     "@types/mocha": "^8.2.2",
