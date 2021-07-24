@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.1.4](https://github.com/vinicioslc/adonis4-tools/compare/v99.99.99...v99.100.0) (2021-07-24)
+
+### Documentation
+
+- add better description at store ([59583a7](https://github.com/vinicioslc/adonis4-tools/commits/59583a7a1abe6750a15e2bf76e894e14783b8cd3))
+
 ### 0.1.3 (2021-07-24)
 
 ### Features
