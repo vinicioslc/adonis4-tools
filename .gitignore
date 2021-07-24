@@ -105,3 +105,7 @@ dist
 
 # Output files
 **/out/**
+.github/workflows/production.deploy.yml
+
+# Deploy Files
+*.vsix
