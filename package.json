@@ -42,7 +42,9 @@
     "standard-version": "^9.3.1",
     "typescript": "^4.3.5"
   },
-  "dependencies": {},
+  "dependencies": {
+    "n-readlines": "^1.0.1"
+  },
   "activationEvents": [
     "onLanguage:javascript",
     "onLanguage:typescript",

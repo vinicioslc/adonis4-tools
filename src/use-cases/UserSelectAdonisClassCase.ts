@@ -1,42 +1,47 @@
-import { QuickPickItem, } from 'vscode';
-import { ClassMetaInfo } from '../domain/ClassMetadata';
-
-import ClassResolverGateway from '../gateways/ClassResolverGateway';
-import DocumentWriterGateway from '../gateways/DocumentWriterGateway';
-import FilePickerPresenter from '../presenters/FilePickerPresenter';
+import { QuickPickItem } from "vscode";
+import * as path from "path";
+import * as lineByLine from "n-readlines";
 
 
+import { ClassMetaInfo } from "../domain/ClassMetadata";
+
+import ClassResolverGateway from "../gateways/ClassResolverGateway";
+import DocumentWriterGateway from "../gateways/DocumentWriterGateway";
+import ClassFilePickerPresenter from "../presenters/FilePickerPresenter";
 
 const mapToQuickPickItem = (value: ClassMetaInfo) => {
 	const item: QuickPickItem = {
 		label: value.name,
-		description: value.type,
-		detail: value.path,
+		description: value.getUsePath(),
+		detail: value.rawPath,
 	};
 	return item;
 };
 
-
-export default class ListAdonisClasses {
-	#filePicker: FilePickerPresenter;
+export default class UserSelectAdonisClassCase {
+	#filePicker: ClassFilePickerPresenter;
 	#classesResolver: ClassResolverGateway;
 	#importStatementWritter: DocumentWriterGateway;
 
-
-	constructor(filePickerInstance: FilePickerPresenter, classesResolver: ClassResolverGateway, importStatementWritter: DocumentWriterGateway) {
+	constructor(
+		filePickerInstance: ClassFilePickerPresenter,
+		classesResolver: ClassResolverGateway,
+		importStatementWritter: DocumentWriterGateway
+	) {
 		this.#filePicker = filePickerInstance;
 		this.#classesResolver = classesResolver;
 		this.#importStatementWritter = importStatementWritter;
 	}
 
 	async execute() {
+		let items = await this.#classesResolver.findFilesByGlobs([
+			["**/app/**", "!**/app/**"],
+			["**/providers/**", "!**/providers/**"],
+		]);
 
-
-		const items = await this.#classesResolver.findClasses(
-			'**/app/**',
-			'!**/app/**');
-
+		items = items.map(normalizeClassProviders);
 		const quickPickItems = items.map(mapToQuickPickItem);
+
 		console.warn("Showing class picker", quickPickItems);
 
 		const classPicked = await this.#filePicker.showClassPicker(quickPickItems);
@@ -47,3 +52,73 @@ export default class ListAdonisClasses {
 		}
 	}
 }
+function normalizeClassProviders(file: ClassMetaInfo, index, allClasses: ClassMetaInfo[]): ClassMetaInfo {
+
+	let hasRegisterFunc = null;
+
+	let usePathFound = null;
+	let requirePathFound = null;
+
+	if (file.rawPath.includes("provider")) {
+		const current = new lineByLine(file.rawPath);
+
+
+		let nextLine;
+		let lineNumber = 0;
+		let needIterate = true;
+
+		while (needIterate) {
+			nextLine = current.next();
+			needIterate = nextLine;
+			const lineString = nextLine.toString('utf-8');
+			console.log("Line " + lineNumber + ":" + lineString);
+			try {
+				if (hasRegisterFunc == null) {
+					hasRegisterFunc = /register/mi.exec(lineString);
+				}
+				if (hasRegisterFunc !== null && usePathFound === null) {
+					const useRegex = /singleton\(['"]([\w\W]+)['"]/mi.exec(lineString);
+					if (useRegex && useRegex.length > 0) {
+						// get namespace as path
+						usePathFound = useRegex[1];
+					}
+				}
+				if (hasRegisterFunc !== null && usePathFound !== null && requirePathFound === null) {
+					const requireRegex = /require\(['"]([\w\W]+)['"]/mi.exec(lineString);
+					if (requireRegex && requireRegex.length > 0) {
+						requirePathFound = requireRegex[1];
+					}
+				}
+				if (usePathFound !== null
+					&& usePathFound.length > 0
+					&& requirePathFound !== null
+					&& requirePathFound.length > 0) {
+
+					needIterate = false;
+
+					break;
+				}
+			} catch (error) {
+				console.error(error);
+				throw error;
+			}
+			lineNumber++;
+		}
+		file.usePath = usePathFound;
+		file.rawPath = requirePathFound;
+		// normalize require path when file its a provider 
+		if (file.rawPath.includes('/app/')) {
+			for (const idx in allClasses) {
+				const currItem = allClasses[idx];
+				if (idx != index && currItem.onlyName() === file.onlyName()) {
+					file.rawPath = currItem.rawPath;
+				}
+			}
+		}
+	} else {
+		file.usePath = file.getUsePath();
+	}
+
+	return file;
+}
+

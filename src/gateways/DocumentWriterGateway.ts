@@ -8,10 +8,10 @@ export default class DocumentWriterGateway {
 		this.#textEditor = textEditor;
 	}
 
-	async writeImportStatement<T extends vscode.QuickPickItem>(classMetadata: T) {
-		console.warn("Writing ClassData", classMetadata);
+	async writeImportStatement<T extends vscode.QuickPickItem>(classInfo: T) {
+		console.warn("Writing ClassData", classInfo);
 		const importText = this.#generateImportText(
-			ClassMetaInfo.fromQuickPickItem(classMetadata)
+			ClassMetaInfo.fromQuickPickItem(classInfo)
 		);
 
 		console.warn("GENERATED TEXT", importText);
@@ -44,14 +44,13 @@ export default class DocumentWriterGateway {
 	}
 
 	#generateImportText(classInfo: ClassMetaInfo): any {
-		const realRelativePath = classInfo
-			.getRelativePathToFolder(this.#textEditor.document.uri.fsPath)
-			.split("\\")
-			.join("/");
-		const usePath = classInfo.getAdonisRegisteredPath();
+
+		const usePath = classInfo.getUsePath();
+		const currentFilePath = this.#textEditor.document.uri.fsPath;
+		const realPath = classInfo.getRelativePathToFolder(currentFilePath);
 
 		const template = `
-/** @typedef {import('${realRelativePath}')} ${classInfo.onlyName()}*/
+/** @typedef {import('${realPath}')} ${classInfo.onlyName()}*/
 /** @type {${classInfo.onlyName()}}*/
 const ${classInfo.onlyName()} = use('${usePath}')
 `;
