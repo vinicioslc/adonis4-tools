@@ -1,5 +1,5 @@
 import * as vscode from "vscode";
-import { ClassMetaInfo as ClassMetaInfo } from "../domain/ClassMetadata";
+import { AdonisFileInfo as AdonisFileInfo } from "../domain/AdonisFileInfo";
 
 export default class DocumentWriterGateway {
 	#textEditor: vscode.TextEditor;
@@ -8,10 +8,10 @@ export default class DocumentWriterGateway {
 		this.#textEditor = textEditor;
 	}
 
-	async writeImportStatement<T extends vscode.QuickPickItem>(classMetadata: T) {
-		console.warn("Writing ClassData", classMetadata);
+	async writeImportStatement<T extends vscode.QuickPickItem>(classInfo: T) {
+		console.warn("Writing ClassData", classInfo);
 		const importText = this.#generateImportText(
-			ClassMetaInfo.fromQuickPickItem(classMetadata)
+			AdonisFileInfo.fromQuickPickItem(classInfo)
 		);
 
 		console.warn("GENERATED TEXT", importText);
@@ -43,15 +43,14 @@ export default class DocumentWriterGateway {
 		return lineToInsert;
 	}
 
-	#generateImportText(classInfo: ClassMetaInfo): any {
-		const realRelativePath = classInfo
-			.getRelativePathToFolder(this.#textEditor.document.uri.fsPath)
-			.split("\\")
-			.join("/");
-		const usePath = classInfo.getAdonisRegisteredPath();
+	#generateImportText(classInfo: AdonisFileInfo): any {
+
+		const usePath = classInfo.getUsePath();
+		const currentFilePath = this.#textEditor.document.uri.fsPath;
+		const realPath = classInfo.getRelativePathToFolder(currentFilePath);
 
 		const template = `
-/** @typedef {import('${realRelativePath}')} ${classInfo.onlyName()}*/
+/** @typedef {import('${realPath}')} ${classInfo.onlyName()}*/
 /** @type {${classInfo.onlyName()}}*/
 const ${classInfo.onlyName()} = use('${usePath}')
 `;

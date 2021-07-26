@@ -3,7 +3,7 @@
   "description": "Adonis4 Tools that add typing to imported services using hotkey",
   "author": "Vinicios Clarindo <vinicioslc@outlook.com>",
   "license": "MIT",
-  "version": "0.1.5",
+  "version": "0.2.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/vinicioslc/adonis4-tools"
@@ -42,7 +42,9 @@
     "standard-version": "^9.3.1",
     "typescript": "^4.3.5"
   },
-  "dependencies": {},
+  "dependencies": {
+    "n-readlines": "^1.0.1"
+  },
   "activationEvents": [
     "onLanguage:javascript",
     "onLanguage:typescript",

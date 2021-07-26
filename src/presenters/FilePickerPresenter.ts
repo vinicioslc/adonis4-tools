@@ -11,9 +11,9 @@ export default class FilePicker {
 
 	async showClassPicker<T extends QuickPickItem>(items: T[] | Thenable<T[]>, token?: CancellationToken): Promise<string | any> {
 		return this.#showQuickPickFunc(items, {
-			canPickMany: undefined,
 			matchOnDescription: true,
-			matchOnDetail: true
+			matchOnDetail: true,
+			placeHolder: "Select an AdonisJS class to use() it"
 		}, token);
 	}
 }

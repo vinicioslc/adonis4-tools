@@ -74,12 +74,12 @@ export class LinkProvider implements DocumentLinkProvider {
 		token: CancellationToken
 	): ProviderResult<DocumentLink> {
 		const lineNum = util.getLineNumber(link.funcName, link.filePath);
-		let path = link.filePath;
+		let filePath = link.filePath;
 		if (lineNum !== -1) {
-			path += "#" + lineNum;
+			filePath += "#" + lineNum;
 		}
 
-		link.target = Uri.parse("file:" + path);
+		link.target = Uri.parse("file:" + filePath);
 		return link;
 	}
 }
