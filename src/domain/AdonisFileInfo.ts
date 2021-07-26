@@ -2,7 +2,7 @@ import { QuickPickItem } from 'vscode';
 import * as path from 'path';
 
 
-export class ClassMetaInfo {
+export class AdonisFileInfo {
 	name: string;
 	rawPath: string;
 	usePath: string;
@@ -55,8 +55,8 @@ export class ClassMetaInfo {
 		}
 	}
 
-	static fromQuickPickItem(item: QuickPickItem): ClassMetaInfo {
-		return new ClassMetaInfo(
+	static fromQuickPickItem(item: QuickPickItem): AdonisFileInfo {
+		return new AdonisFileInfo(
 			item.label,
 			item.detail,
 			item.description,

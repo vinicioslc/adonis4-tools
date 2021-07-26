@@ -3,13 +3,13 @@ import * as path from "path";
 import * as lineByLine from "n-readlines";
 
 
-import { ClassMetaInfo } from "../domain/ClassMetadata";
+import { AdonisFileInfo } from "../domain/AdonisFileInfo";
 
 import ClassResolverGateway from "../gateways/ClassResolverGateway";
 import DocumentWriterGateway from "../gateways/DocumentWriterGateway";
 import ClassFilePickerPresenter from "../presenters/FilePickerPresenter";
 
-const mapToQuickPickItem = (value: ClassMetaInfo) => {
+const mapToQuickPickItem = (value: AdonisFileInfo) => {
 	const item: QuickPickItem = {
 		label: value.name,
 		description: value.getUsePath(),
@@ -52,7 +52,7 @@ export default class UserSelectAdonisClassCase {
 		}
 	}
 }
-function normalizeClassProviders(file: ClassMetaInfo, index, allClasses: ClassMetaInfo[]): ClassMetaInfo {
+function normalizeClassProviders(file: AdonisFileInfo, index, allClasses: AdonisFileInfo[]): AdonisFileInfo {
 
 	let hasRegisterFunc = null;
 

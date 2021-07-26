@@ -1,5 +1,5 @@
 import * as vscode from "vscode";
-import { ClassMetaInfo as ClassMetaInfo } from "../domain/ClassMetadata";
+import { AdonisFileInfo as AdonisFileInfo } from "../domain/AdonisFileInfo";
 
 export default class DocumentWriterGateway {
 	#textEditor: vscode.TextEditor;
@@ -11,7 +11,7 @@ export default class DocumentWriterGateway {
 	async writeImportStatement<T extends vscode.QuickPickItem>(classInfo: T) {
 		console.warn("Writing ClassData", classInfo);
 		const importText = this.#generateImportText(
-			ClassMetaInfo.fromQuickPickItem(classInfo)
+			AdonisFileInfo.fromQuickPickItem(classInfo)
 		);
 
 		console.warn("GENERATED TEXT", importText);
@@ -43,7 +43,7 @@ export default class DocumentWriterGateway {
 		return lineToInsert;
 	}
 
-	#generateImportText(classInfo: ClassMetaInfo): any {
+	#generateImportText(classInfo: AdonisFileInfo): any {
 
 		const usePath = classInfo.getUsePath();
 		const currentFilePath = this.#textEditor.document.uri.fsPath;

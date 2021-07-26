@@ -1,5 +1,5 @@
 import { CancellationToken, GlobPattern, Uri } from "vscode";
-import { ClassMetaInfo as ClassMetaInfo } from "../domain/ClassMetadata";
+import { AdonisFileInfo as AdonisFileInfo } from "../domain/AdonisFileInfo";
 import * as path from "path";
 
 type FindFiles = (
@@ -31,7 +31,7 @@ export default class ClassResolverGateway {
 	async findFilesByGlobs(
 		include: GlobPattern | GlobPattern[][],
 		exclude?: GlobPattern | null
-	): Promise<ClassMetaInfo[]> {
+	): Promise<AdonisFileInfo[]> {
 		const allFiles = [];
 		if (Array.isArray(include)) {
 			for (const idx in include) {
@@ -50,9 +50,9 @@ export default class ClassResolverGateway {
 	private async searchFilesByGlob(
 		include: GlobPattern,
 		exclude: GlobPattern
-	): Promise<ClassMetaInfo[]> {
+	): Promise<AdonisFileInfo[]> {
 		return (await this.#findFilesFunc(include, exclude)).map((val) => {
-			return new ClassMetaInfo(
+			return new AdonisFileInfo(
 				path.basename(val.fsPath),
 				val.fsPath,
 				classifySymbolType(val.fsPath)
