@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.1](https://github.com/vinicioslc/adonis4-tools/compare/v0.1.5...v0.2.1) (2021-08-02)
+
+### Bug Fixes
+
+* filter file completions that throws exceptions on unexpected paths ([1153182](https://github.com/vinicioslc/adonis4-tools/commits/11531826186b301ab35f73e8be15c2d4a432cff8))
+
+
+### Documentation
+
+* added actions badge ([bd0e4c6](https://github.com/vinicioslc/adonis4-tools/commits/bd0e4c65b7161818189e8ed2fae00a09ec4ca615))
+* adds demo gif ([bb28145](https://github.com/vinicioslc/adonis4-tools/commits/bb28145691de5798958c577d31aaa458c26ab203))
+
 ## 0.2.0 (2021-07-26)
 
 
