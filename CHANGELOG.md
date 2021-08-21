@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.2](https://github.com/vinicioslc/adonis4-tools/compare/v0.2.1...v0.2.2) (2021-08-21)
+
+
+### Features
+
+* add check to allready imported typedef ([95a63c4](https://github.com/vinicioslc/adonis4-tools/commits/95a63c4ff9481416d8720b58745d27c995e589fc))
+
 ### [0.2.1](https://github.com/vinicioslc/adonis4-tools/compare/v0.1.5...v0.2.1) (2021-08-02)
 
 ### Bug Fixes
