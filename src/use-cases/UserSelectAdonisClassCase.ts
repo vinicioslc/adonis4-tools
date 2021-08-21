@@ -43,16 +43,18 @@ export default class UserSelectAdonisClassCase {
       ["**/providers/**", "!**/providers/**"],
     ]);
 
-    items = items.map(normalizeClassProviders);
-    const quickPickItems = items.map(mapToQuickPickItem).filter((val) => val !== null);
+    items = items.map(normalizeClassProviders).filter((val) => val !== null);
+    const quickPickItems = items.map(mapToQuickPickItem);
 
     console.warn("Showing class picker", quickPickItems);
 
     const classPicked = await this.#filePicker.showClassPicker(quickPickItems);
     console.warn("Class picked", classPicked);
-
     if (classPicked) {
-      this.#importStatementWritter.writeImportStatement(classPicked);
+      const adonisInfo = items.find((val, index, arr) => {
+        return val.rawPath === classPicked.detail;
+      });
+      this.#importStatementWritter.writeImportStatement(adonisInfo);
     }
   }
 }
