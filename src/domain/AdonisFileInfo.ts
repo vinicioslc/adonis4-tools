@@ -1,11 +1,21 @@
-import { QuickPickItem } from 'vscode';
+import { QuickPickItem, window } from 'vscode';
 import * as path from 'path';
 
+export enum ProviderType {
+  Singleton = "Singleton inside IOC",
+  Bind = "Bind inside IOC",
+}
 
 export class AdonisFileInfo {
   name: string;
   rawPath: string;
   usePath: string;
+  relativePathToFile: string = null;
+
+  get isProvider(): boolean {
+    return this.providerType != null;
+  }
+  providerType: ProviderType = null;
 
   constructor(name, rawPath, useName) {
     this.name = name;
@@ -29,12 +39,6 @@ export class AdonisFileInfo {
    * relative to path like `../../services/service.js`
    * @param  {} relativeTo
    */
-  getRelativePathToFolder(relativeTo) {
-    return path.normalize(path.relative(relativeTo, this.rawPath)
-      .substring(3))
-      .split("\\")
-      .join("/");
-  }
 
   /**
    * Build and return the adonis use() path like `App\Services\Http`

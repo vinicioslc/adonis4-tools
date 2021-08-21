@@ -13,19 +13,29 @@ import FilePicker from './presenters/FilePickerPresenter';
 import UserSelectAdonisClassCase from './use-cases/UserSelectAdonisClassCase';
 
 
-
+let allreadyGettingFiles = false;
 export function activate(context: ExtensionContext) {
 
 
-	context.subscriptions.push(
-		commands.registerCommand("adonis4_tools.pick_file", async () => {
-			const picker = new FilePicker(window.showQuickPick);
-			const resolver = new ClassResolverGateway(workspace.findFiles);
-			const documentWritter = new DocumentWriterGateway(window.activeTextEditor);
-			return await (new UserSelectAdonisClassCase(picker, resolver, documentWritter)).execute();
-		})
-	);
-	console.log("Adonis Require Initialized");
+  context.subscriptions.push(
+    commands.registerCommand("adonis4_tools.pick_file", async () => {
+      if (!allreadyGettingFiles) {
+        try {
+          allreadyGettingFiles = true;
+
+          const picker = new FilePicker(window.showQuickPick);
+          const resolver = new ClassResolverGateway(workspace.findFiles);
+          const documentWritter = new DocumentWriterGateway(window.activeTextEditor);
+          await (new UserSelectAdonisClassCase(picker, resolver, documentWritter)).execute();
+          allreadyGettingFiles = false;
+        } catch (error) {
+          allreadyGettingFiles = false;
+          throw error;
+        }
+      }
+    })
+  );
+  console.log("Adonis Require Initialized");
 
 
 }

@@ -1,4 +1,8 @@
 import * as vscode from "vscode";
+
+import * as path from 'path';
+
+import { adonisFilePicker } from '../adonis-file-picker';
 import { AdonisFileInfo as AdonisFileInfo } from "../domain/AdonisFileInfo";
 
 export default class DocumentWriterGateway {
@@ -8,29 +12,26 @@ export default class DocumentWriterGateway {
     this.#textEditor = textEditor;
   }
 
-  async writeImportStatement<T extends vscode.QuickPickItem>(classInfo: AdonisFileInfo) {
-    console.warn("Class Data:", classInfo);
+  async writeImportStatement<T extends vscode.QuickPickItem>(fileInfo: AdonisFileInfo, allClassesFiles: AdonisFileInfo[]) {
     const importText = this.#generateImportText(
-      classInfo
+      fileInfo
     );
 
-    console.warn("Import Test:", importText);
+    console.log("Class Data:", fileInfo);
+    console.log("Import Test:", importText);
     const hasUseStrict = this.#textEditor.document.lineAt(1).text.includes('strict');
 
-    const lineToInsert = this.getLineToInsert(this.#textEditor.document, hasUseStrict, classInfo);
-    const lineToInsertTypeDef = this.getLineToTypeDef(this.#textEditor.document, hasUseStrict, classInfo);
-    if (lineToInsertTypeDef) {
-      this.#textEditor.edit((editBuilder: vscode.TextEditorEdit) => {
-        // to avoid 'use-strict' area
-        editBuilder.insert(new vscode.Position(lineToInsertTypeDef, 0), this.#generateTypedef(classInfo));
-      });
-    }
-    if (lineToInsert) {
-      this.#textEditor.edit((editBuilder: vscode.TextEditorEdit) => {
-        // to avoid 'use-strict' area
+    const lineToInsert = this.getLineToInsert(this.#textEditor.document, hasUseStrict, fileInfo);
+    const lineToInsertTypeDef = this.getLineToTypeDef(this.#textEditor.document, hasUseStrict, fileInfo);
+
+    return this.#textEditor.edit((editBuilder: vscode.TextEditorEdit) => {
+      if (lineToInsertTypeDef) {
+        editBuilder.insert(new vscode.Position(lineToInsertTypeDef, 0), this.#generateTypedef(fileInfo, allClassesFiles));
+      }
+      if (lineToInsert) {
         editBuilder.insert(new vscode.Position(lineToInsert, 0), importText);
-      });
-    }
+      }
+    });
   }
   private getLineToTypeDef(textDocument: vscode.TextDocument, isUseStrictFile: boolean, classInfo: AdonisFileInfo) {
     const AFTER_USE_STRICT = 2;
@@ -113,23 +114,30 @@ export default class DocumentWriterGateway {
     return lineToInsert;
   }
 
-  #generateTypedef(classInfo: AdonisFileInfo) {
+  #generateTypedef(classInfo: AdonisFileInfo, allClassesFiles: AdonisFileInfo[]) {
 
-    const currentFilePath = this.#textEditor.document.uri.fsPath;
-    const realPath = classInfo.getRelativePathToFolder(currentFilePath);
+    let realPath = classInfo.relativePathToFile;
+    if (realPath.includes('Program Files')) {
+      const filename = path.parse(realPath).name;
+      const foundedRealFile = allClassesFiles.find((fileInfo) => {
+        if (fileInfo.isProvider) {
+          return false;
+        }
+        return path.parse(fileInfo.usePath).name === filename;
+      });
+      realPath = foundedRealFile.relativePathToFile;
+    }
 
     const template = `/** @typedef {import('${realPath}')} ${classInfo.onlyName()}*/
 `;
     return template;
   }
+
   #generateImportText(classInfo: AdonisFileInfo): any {
 
     const usePath = classInfo.getUsePath();
-    const currentFilePath = this.#textEditor.document.uri.fsPath;
-    const realPath = classInfo.getRelativePathToFolder(currentFilePath);
 
-    const template = `
-/** @type {${classInfo.onlyName()}}*/
+    const template = `/** @type {${classInfo.onlyName()}}*/
 const ${classInfo.onlyName()} = use('${usePath}')
 `;
     return template;
