@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.3](https://github.com/vinicioslc/adonis4-tools/compare/v0.2.2...v0.2.3) (2021-08-21)
+
+
+### Bug Fixes
+
+* **providers:** relative path to services are now correctly from files array ([b98d933](https://github.com/vinicioslc/adonis4-tools/commits/b98d933f3e3766d59f0db5213a40b97bf0af8fbd))
+
 ### [0.2.2](https://github.com/vinicioslc/adonis4-tools/compare/v0.2.1...v0.2.2) (2021-08-21)
 
 
