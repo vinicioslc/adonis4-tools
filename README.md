@@ -6,9 +6,9 @@ Provide for legacy adonisjs, autocomplete for services classes to increase devel
 
 [![Deploy to Production](https://github.com/vinicioslc/adonis4-tools/actions/workflows/production.deploy.yml/badge.svg)](https://github.com/vinicioslc/adonis4-tools/actions/workflows/production.deploy.yml)
 
-<div style="text-align:center">
+##### Hotkey: Ctrl + Shift + A
 
-> Ctrl + Shift + A
+<div style="text-align:center">
 
 ![status bar](https://raw.githubusercontent.com/vinicioslc/adonis4-tools/main/media/demo.gif)
 
