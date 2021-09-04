@@ -19,14 +19,14 @@ jobs:
     runs-on: ubuntu-latest
     name: Merge
     steps:
-      - name: Integration check
+      - name: Do Auto Merge PRs
         uses: squalrus/merge-bot@v0.1.0
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          test: true
-          reviewers: true
+          test: false
+          reviewers: false
+          checks_enabled: false
           labels: ready, merge, approvado, integrar, lancar, pronto, liberar merge, com automerge
           blocking_labels: do not merge, dont-merge, bloquear merge, sem automerge
-          checks_enabled: false
           method: merge
           delete_source_branch: true
