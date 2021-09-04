@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.6](https://github.com/vinicioslc/adonis4-tools/compare/v0.2.5...v0.2.6) (2021-09-04)
+
+
+### Bug Fixes
+
+* change version check strategy ([64ee455](https://github.com/vinicioslc/adonis4-tools/commits/64ee455fce268b00afb7a5395b6e7e81d87eb929))
+* changed readme ([0c88db1](https://github.com/vinicioslc/adonis4-tools/commits/0c88db17d13db9bf0a4c5dd195649c37ecb56c09))
+
+
+### Documentation
+
+* updated ci ([9806f8a](https://github.com/vinicioslc/adonis4-tools/commits/9806f8a345676bf0bebe5bb6bafe3d3caeee181f))
+
 ### [0.2.5](https://github.com/vinicioslc/adonis4-tools/compare/v0.2.1...v0.2.5) (2021-09-04)
 
 
