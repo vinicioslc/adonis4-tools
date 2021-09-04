@@ -8,6 +8,8 @@ Provide for legacy adonisjs, autocomplete for services classes to increase devel
 
 <div style="text-align:center">
 
+> Ctrl + Shift + A
+
 ![status bar](https://raw.githubusercontent.com/vinicioslc/adonis4-tools/main/media/demo.gif)
 
 </div>

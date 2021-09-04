@@ -29,7 +29,7 @@ export class AdonisFileInfo {
     try {
       return path.parse(this.rawPath).name || this.name;
     } catch (e) {
-      // console.log(e);
+      console.error(e);
       return '';
     }
   }
