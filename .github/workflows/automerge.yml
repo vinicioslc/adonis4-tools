@@ -25,7 +25,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           test: false
           reviewers: false
-          checks_enabled: false
+          checks_enabled: true
           labels: ready, merge, approvado, integrar, lancar, pronto, liberar merge, com automerge
           blocking_labels: do not merge, dont-merge, bloquear merge, sem automerge
           method: merge
