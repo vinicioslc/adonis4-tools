@@ -17,11 +17,8 @@ Provide for legacy adonisjs, autocomplete for services classes to increase devel
 ## Features
 
 - [x] Import and automatically use @typedef for add intellisense
-
-  - Ctrl+Shift+A open import menu
-
-- [ ] Autocomplete for providers and @typedef
-
+  - [x] Ctrl+Shift+A open import menu
+- [x] Autocomplete for providers and @typedef
 - [ ] GoToController when hover on Route Definitions strings
 - [ ] Go to service implementation when click on controllers
 
