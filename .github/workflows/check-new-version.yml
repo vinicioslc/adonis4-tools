@@ -1,5 +1,5 @@
 # Test if the new commits has the version bump for deploy works
-name: Check new version
+name: Check version bump
 on:
   # Trigger the workflow on push or pull request,
   # but only for the main branch
