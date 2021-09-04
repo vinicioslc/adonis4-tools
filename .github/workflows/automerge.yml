@@ -1,32 +1,42 @@
-name: Auto Merge Bot
+name: Automerge
 
 on:
-  pull_request:
+  # Try enabling auto-merge for all open pull requests. (Only recommended for testing.)
+  push:
+
+  # Try enabling auto-merge for all open pull requests.
+  schedule:
+    - cron: 0 * * * *
+
+  # Try enabling auto-merge for a pull request when a draft is marked as “ready for review”, when
+  # a required label is applied or when a “do not merge” label is removed, or when a pull request
+  # is updated in any way (opened, synchronized, reopened, edited).
+  pull_request_target:
     types:
-      - labeled
-      - ready_for_review
-      - review_request_removed
-      - review_requested
+      - opened
       - synchronize
+      - reopened
+      - edited
+      - labeled
       - unlabeled
-  pull_request_review:
-    types:
-      - dismissed
-      - submitted
+      - ready_for_review
+
+  # Try enabling auto-merge for the specified pull request or all open pull requests if none is specified.
+  workflow_dispatch:
+    inputs:
+      pull-request:
+        description: Pull Request Number
+        required: false
 
 jobs:
-  merge:
+  automerge:
     runs-on: ubuntu-latest
-    name: Merge
     steps:
-      - name: Do Auto Merge PRs
-        uses: squalrus/merge-bot@v0.4.5
+      - uses: reitermarkus/automerge@v2
         with:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          test: false
-          reviewers: false
-          checks_enabled: true
-          labels: ready, merge, approvado, integrar, lancar, pronto, liberar merge, com automerge
-          blocking_labels: do not merge, dont-merge, bloquear merge, sem automerge
-          method: merge
-          delete_source_branch: true
+          token: ${{ secrets.MY_GITHUB_TOKEN }}
+          merge-method: merge
+          do-not-merge-labels: never-merge
+          required-labels: automerge
+          pull-request: ${{ github.event.inputs.pull-request }}
+          dry-run: true
