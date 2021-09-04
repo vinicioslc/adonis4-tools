@@ -1,10 +1,18 @@
 name: Auto Merge Bot
 
 on:
-  workflow_run:
-    workflows: ["Check version bump"]
+  pull_request:
     types:
-      - completed
+      - labeled
+      - ready_for_review
+      - review_request_removed
+      - review_requested
+      - synchronize
+      - unlabeled
+  pull_request_review:
+    types:
+      - dismissed
+      - submitted
 
 jobs:
   merge:
@@ -17,7 +25,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           test: false
           reviewers: false
-          checks_enabled: false
+          checks_enabled: true
           labels: ready, merge, approvado, integrar, lancar, pronto, liberar merge, com automerge
           blocking_labels: do not merge, dont-merge, bloquear merge, sem automerge
           method: merge
