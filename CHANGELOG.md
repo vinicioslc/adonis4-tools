@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.5](https://github.com/vinicioslc/adonis4-tools/compare/v0.2.1...v0.2.5) (2021-09-04)
+
+
+### Features
+
+* add check to allready imported typedef ([95a63c4](https://github.com/vinicioslc/adonis4-tools/commits/95a63c4ff9481416d8720b58745d27c995e589fc))
+
+
+### Bug Fixes
+
+* **providers:** relative path to services are now correctly from files array ([b98d933](https://github.com/vinicioslc/adonis4-tools/commits/b98d933f3e3766d59f0db5213a40b97bf0af8fbd))
+* some change to test ci ([cd9eef3](https://github.com/vinicioslc/adonis4-tools/commits/cd9eef33aeeefa9765e8f6a9697762961caa6e78))
+* **use:** check existing use/typedef/type before import class ([2e33d2c](https://github.com/vinicioslc/adonis4-tools/commits/2e33d2c1c19a489a53ca8602bcd746007567c28d))
+
 ### [0.2.4](https://github.com/vinicioslc/adonis4-tools/compare/v0.2.1...v0.2.4) (2021-09-04)
 
 
