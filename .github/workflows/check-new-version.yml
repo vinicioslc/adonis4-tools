@@ -9,21 +9,19 @@ on:
       - main
 
 jobs:
-  save-current-version:
+  check-has-new-version:
     runs-on: ubuntu-latest
-    name: Save Envs
+    name: Go to main branch
+    outputs:
+      triggered_version: ${{ steps.trigger_version.outputs.triggered_version }}
     steps:
+      - uses: actions/checkout@v2
       - name: Save Enviroment
         id: trigger_version
         run: |
           PACKAGE_VERSION=$(cat package.json | grep version | head -1 | awk -F: '{ print $2 }' | sed 's/[\",]//g' | tr -d '[[:space:]]')
           echo $PACKAGE_VERSION
-          echo "::set-output name=triggered_version::$PACKAGE_VERSION"
-
-  go-to-main:
-    runs-on: ubuntu-latest
-    name: Go to main branch
-    steps:
+          echo "::set-output name=triggered_version::$(cat package.json | grep version | head -1 | awk -F: '{ print $2 }' | sed 's/[\",]//g' | tr -d '[[:space:]]')"
       - uses: actions/checkout@v2
         with:
           ref: main
@@ -36,4 +34,4 @@ jobs:
           cd .semver
           npm i
           cd ../
-          node .semver/ ${{ needs.trigger_version.outputs.triggered_version }}
+          node .semver/ "${{ steps.trigger_version.outputs.triggered_version }}"
