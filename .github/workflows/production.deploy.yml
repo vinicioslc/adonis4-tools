@@ -24,8 +24,6 @@ jobs:
         run: |
           echo ::set-output name=package_version::$(grep '"version"' package.json | cut -d '"' -f 4 | head -n 1)
           echo "Current version "$(grep '"version"' package.json | cut -d '"' -f 4 | head -n 1)
-          echo ::set-output name=changes_summary::$(sed --expression='1,/##/d;/### 0.1/Q' CHANGELOG.md)
-          echo "Current changes "$(sed --expression='1,/##/d;/### 0.1/Q' CHANGELOG.md)
       - name: npm install and publish
         run: |
           npm install
@@ -37,5 +35,5 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           artifacts: "*.vsix"
           name: ${{ steps.vars.outputs.package_version }}
-          body: ${{ steps.vars.outputs.changes_summary }}
+          body: ./CHANGELOG.md
           tag: ${{ steps.vars.outputs.package_version }}
