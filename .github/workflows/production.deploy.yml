@@ -35,5 +35,5 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           artifacts: "*.vsix"
           name: ${{ steps.vars.outputs.package_version }}
-          body: ./CHANGELOG.md
+          bodyFile: ./CHANGELOG.md
           tag: ${{ steps.vars.outputs.package_version }}
