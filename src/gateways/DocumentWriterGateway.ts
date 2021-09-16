@@ -1,8 +1,6 @@
 import * as vscode from "vscode";
-
 import * as path from 'path';
 
-import { adonisFilePicker } from '../adonis-file-picker';
 import { AdonisFileInfo as AdonisFileInfo } from "../domain/AdonisFileInfo";
 
 export default class DocumentWriterGateway {
@@ -13,7 +11,7 @@ export default class DocumentWriterGateway {
     this.#textEditor = textEditor;
   }
 
-  async writeImportStatement<T extends vscode.QuickPickItem>(fileInfo: AdonisFileInfo, allClassesFiles: AdonisFileInfo[]) {
+  async writeImportStatement(fileInfo: AdonisFileInfo, allClassesFiles: AdonisFileInfo[]) {
     const constUseText = this.#generateImportText(
       fileInfo
     );
@@ -86,9 +84,10 @@ export default class DocumentWriterGateway {
 
   private getLineToInsertRequire(textDocument: vscode.TextDocument, INITIAL_LINE: number, classInfo: AdonisFileInfo) {
 
-    const lineToInsert = INITIAL_LINE;
+    let lineToInsert = INITIAL_LINE;
     let idxLine = 1;
     let firstClassOrExport = null;
+    let firstMultilineCommentBeforeClass = null;
     const lastUseOrRequire = null;
     let firstEmtpyLine = null;
     while (lineToInsert === INITIAL_LINE && idxLine < textDocument.lineCount) {
@@ -103,7 +102,11 @@ export default class DocumentWriterGateway {
       // is this line has the current use('MyApp') statement
       if (isCurrentLineUseDirective) {
         this.currentRequireIndex = idxLine; // line to insert is equal empty_line `-1`
-        return null;
+        lineToInsert = null;
+      }
+
+      if (currentLineText.match(/(\/\*)(?!.*@ty)/mi) && !firstMultilineCommentBeforeClass && !firstClassOrExport) {
+        firstMultilineCommentBeforeClass = idxLine; // line to insert is equal empty_line `-1`
       }
 
       if (currentLineText.match(/(class)|(export)|({\n)/mi) && !firstClassOrExport) {
@@ -112,14 +115,13 @@ export default class DocumentWriterGateway {
       idxLine++;
     }
     if (lastUseOrRequire) {
-      return lastUseOrRequire;
-    }
-    else {
-      if (firstClassOrExport) return firstClassOrExport - 1;
-      else {
-        if (firstEmtpyLine) return firstEmtpyLine;
-      }
-
+      lineToInsert = lastUseOrRequire;
+    } else if (firstMultilineCommentBeforeClass) {
+      lineToInsert = firstMultilineCommentBeforeClass;
+    } else if (firstClassOrExport) {
+      lineToInsert = firstClassOrExport;
+    } else if (firstEmtpyLine) {
+      lineToInsert = firstEmtpyLine;
     }
 
     return lineToInsert;
@@ -133,6 +135,7 @@ export default class DocumentWriterGateway {
 
   ) {
     let lineFound = null;
+
 
     if (lineToInsertRequire) {
       const currentLine = lineToInsertRequire - 1;
