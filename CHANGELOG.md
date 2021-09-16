@@ -2,6 +2,32 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.8](https://github.com/vinicioslc/adonis4-tools/compare/v0.2.1...v0.2.8) (2021-09-16)
+
+
+### Features
+
+* add check to allready imported typedef ([95a63c4](https://github.com/vinicioslc/adonis4-tools/commits/95a63c4ff9481416d8720b58745d27c995e589fc))
+* add typeof when importing classes from models folder ([d7e510d](https://github.com/vinicioslc/adonis4-tools/commits/d7e510d31890640db55aac3f7176dc9f6833deb8))
+
+
+### Bug Fixes
+
+* automerge version ([a86d609](https://github.com/vinicioslc/adonis4-tools/commits/a86d609448663e4b3825cdaa69b49cc1137590e6))
+* change version check strategy ([64ee455](https://github.com/vinicioslc/adonis4-tools/commits/64ee455fce268b00afb7a5395b6e7e81d87eb929))
+* changed readme ([0c88db1](https://github.com/vinicioslc/adonis4-tools/commits/0c88db17d13db9bf0a4c5dd195649c37ecb56c09))
+* position bug when has multiline comments before class ([8844890](https://github.com/vinicioslc/adonis4-tools/commits/8844890e56bb2583d57f8f38abbb79d0ba4093f6))
+* **providers:** relative path to services are now correctly from files array ([b98d933](https://github.com/vinicioslc/adonis4-tools/commits/b98d933f3e3766d59f0db5213a40b97bf0af8fbd))
+* some change to test ci ([cd9eef3](https://github.com/vinicioslc/adonis4-tools/commits/cd9eef33aeeefa9765e8f6a9697762961caa6e78))
+* **use:** check existing use/typedef/type before import class ([2e33d2c](https://github.com/vinicioslc/adonis4-tools/commits/2e33d2c1c19a489a53ca8602bcd746007567c28d))
+
+
+### Documentation
+
+* changed doc to test merge ([31ee9ce](https://github.com/vinicioslc/adonis4-tools/commits/31ee9ceb7475c7330a5a46febce5a9805aaf2098))
+* updated ci ([9806f8a](https://github.com/vinicioslc/adonis4-tools/commits/9806f8a345676bf0bebe5bb6bafe3d3caeee181f))
+* updated readme test ci ([#10](https://github.com/vinicioslc/adonis4-tools/issues/10)) ([fb34dfd](https://github.com/vinicioslc/adonis4-tools/commits/fb34dfd78a2177c306146e946a05aa7c73cd8c93))
+
 ### [0.2.7](https://github.com/vinicioslc/adonis4-tools/compare/v0.2.1...v0.2.7) (2021-09-07)
 
 
