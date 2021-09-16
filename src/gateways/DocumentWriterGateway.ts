@@ -163,8 +163,11 @@ export default class DocumentWriterGateway {
       });
       realPath = foundedRealFile.relativePathToFile;
     }
-
-    const template = `/** @typedef {import('${realPath || null}')} ${classInfo.onlyName() || null}*/
+    let stringTypeOf = '';
+    if (realPath && realPath.includes('Models')) {
+      stringTypeOf = 'typeof ';
+    }
+    const template = `/** @typedef {${stringTypeOf}import('${realPath || null}')} ${classInfo.onlyName() || null}*/
 `;
     return template;
   }
