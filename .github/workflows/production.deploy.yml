@@ -1,9 +1,12 @@
 name: Deploy to Production
 
+# Only trigger, when the build workflow succeeded
 on:
-  push:
-    branches:
-      - main
+  workflow_run:
+    workflows: ["Package Version Bump OK"]
+    types:
+      - completed
+
 jobs:
   publish:
     environment:

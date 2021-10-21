@@ -1,9 +1,8 @@
-# Test if the new commits has the version bump for deploy works
-name: Check version bump
+name: Package Version Bump OK # Test if the new commits has the version bump for deploy works
 on:
   # Trigger the workflow on push or pull request,
   # but only for the main branch
-  pull_request:
+  push:
     branches:
       - production
       - main
