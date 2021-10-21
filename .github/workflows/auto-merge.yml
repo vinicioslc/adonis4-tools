@@ -23,7 +23,7 @@ jobs:
         uses: vinicioslc/merge-bot@latest
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          test: true
+          test: false
           reviewers: false
           checks_enabled: true
           labels: ignore
