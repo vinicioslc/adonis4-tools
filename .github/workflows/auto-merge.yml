@@ -20,7 +20,7 @@ jobs:
     name: Merge
     steps:
       - name: Do Auto Merge PRs
-        uses: vinicioslc/merge-bot@v0.4.7
+        uses: vinicioslc/merge-bot@v0.4.8
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           test: true
