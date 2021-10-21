@@ -26,7 +26,7 @@ jobs:
           test: true
           reviewers: false
           checks_enabled: true
-          labels: ready, merge, approvado, integrar, lancar, pronto, liberar merge, usar automerge
-          blocking_labels: do not merge, dont-merge, bloquear merge, sem automerge, block-merge, nao mergear
+          labels: []
+          blocking_labels: []
           method: merge
           delete_source_branch: true
