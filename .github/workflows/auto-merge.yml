@@ -26,7 +26,7 @@ jobs:
           test: true
           reviewers: false
           checks_enabled: true
-          labels: []
-          blocking_labels: []
+          labels: merge, will merge, ready
+          blocking_labels: do not merge, dont merge, not ready
           method: merge
           delete_source_branch: true
