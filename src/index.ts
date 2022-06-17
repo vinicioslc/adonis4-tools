@@ -36,8 +36,6 @@ export function activate(context: ExtensionContext) {
     })
   );
   console.log("Adonis Require Initialized");
-
-
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-function

@@ -110,16 +110,16 @@ export default class ClassResolverGateway {
           }
           if (hasRegisterFunc !== null && usePathFound === null) {
             const sigletonRegex = /singleton\(['"]([\w\W]+)['"]/mi.exec(lineString);
-            if (sigletonRegex && sigletonRegex.length > 0) {
+            if (sigletonRegex && sigletonRegex.length >= 1) {
               // get namespace as path
               file.providerType = ProviderType.Singleton;
               usePathFound = sigletonRegex[1];
             }
-            const bindableRegex = /bind\(['"]([\w\W]+)['"]/mi.exec(lineString);
-            if (bindableRegex && bindableRegex.length > 0) {
+            const bindableRegex = /bind\(['"]([\w\W]+)['"]/im.exec(lineString);
+            if (bindableRegex && bindableRegex.length >= 1) {
               // get namespace as path
-              file.providerType = ProviderType.Singleton;
-              usePathFound = sigletonRegex[1];
+              file.providerType = ProviderType.Bind;
+              usePathFound = bindableRegex[1];
             }
           }
           if (hasRegisterFunc !== null && usePathFound !== null && requirePathFound === null) {
