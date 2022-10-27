@@ -1,6 +1,7 @@
 {
   "name": "adonis4-tools",
-  "description": "Adonis4 Tools that add typing to imported services using hotkey",
+  "displayName": "AdonisJs 4 Tools",
+  "description": "AdonisJs 4 Tools that add typing to imported services using hotkey",
   "author": "Vinicios Clarindo <vinicioslc@outlook.com>",
   "license": "MIT",
   "version": "0.2.10",

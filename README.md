@@ -1,6 +1,6 @@
-<div style="text-align:center"><img src="https://raw.githubusercontent.com/vinicioslc/adonis4-tools/main/media/icon.png" width="200" /></div>
+# 🛠️ AdonisJS 4 Tools
 
-# Adonis4 Tools (WIP)
+<div style="text-align:center"><img src="https://raw.githubusercontent.com/vinicioslc/adonis4-tools/main/media/icon.png" width="200" /></div>
 
 [![Deploy Badge](https://github.com/vinicioslc/adonis4-tools/actions/workflows/production.deploy.yml/badge.svg)](https://github.com/vinicioslc/adonis4-tools/actions/workflows/production.deploy.yml)
 
@@ -16,8 +16,8 @@ Provide for legacy adonisjs, autocomplete for services classes to increase devel
 
 ## Features (WiP)
 
-- [x] Import and automatically use @typedef for add intellisense
-  - [x] Ctrl+Shift+A open import menu
+- [x] Ctrl+Shift+A open import type definitions menu
+  - will use @typedef to provide autocomplete
 - [x] Autocomplete for providers and @typedef
 - [ ] GoToController when hover on Route Definitions strings
 - [ ] Go to service implementation when click on controllers
