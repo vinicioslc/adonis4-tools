@@ -2,8 +2,9 @@ name: Deploy to Production
 
 # Only trigger, when the build workflow succeeded
 on:
+  workflow_dispatch:
   workflow_run:
-    workflows: ["Package Version Bump OK"]
+    workflows: ['Package Version Bump OK']
     types:
       - completed
 
@@ -31,12 +32,12 @@ jobs:
         run: |
           npm install
           npm test
-          npm run publish
+          npx vsce publish -p ${{ secrets.VSCE_DEPLOY_TOKEN }}
       # Generate release at releases page
       - uses: ncipollo/release-action@v1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          artifacts: "*.vsix"
+          artifacts: '*.vsix'
           name: ${{ steps.vars.outputs.package_version }}
           bodyFile: ./CHANGELOG.md
           tag: ${{ steps.vars.outputs.package_version }}
