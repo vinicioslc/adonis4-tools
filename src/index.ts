@@ -24,9 +24,9 @@ export function activate(context: ExtensionContext) {
           allreadyGettingFiles = true;
 
           const picker = new FilePicker(window.showQuickPick);
-          const resolver = new ClassResolverGateway(workspace.findFiles);
+          const classResolver = new ClassResolverGateway(workspace.findFiles);
           const documentWritter = new DocumentWriterGateway(window.activeTextEditor);
-          await (new UserSelectAdonisClassCase(picker, resolver, documentWritter)).execute();
+          await (new UserSelectAdonisClassCase(picker, classResolver, documentWritter)).execute();
           allreadyGettingFiles = false;
         } catch (error) {
           allreadyGettingFiles = false;

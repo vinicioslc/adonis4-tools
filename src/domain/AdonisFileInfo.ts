@@ -24,8 +24,17 @@ export class AdonisFileInfo {
     return this;
   }
 
+  get relativePathName() {
+    try {
+      return path.parse(this.relativePathToFile).name || this.name;
+    } catch (e) {
+      console.error(e);
+      return '';
+    }
+  }
 
-  onlyName() {
+
+  get onlyName() {
     try {
       return path.parse(this.rawPath).name || this.name;
     } catch (e) {
@@ -61,7 +70,7 @@ export class AdonisFileInfo {
         }
         return acumulator;
         /* setup most rigth segment as the name of file */
-      }, this.onlyName());
+      }, this.onlyName);
     } else {
       throw new Error('Invalid class file path or name');
     }

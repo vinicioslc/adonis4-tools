@@ -7,9 +7,9 @@ import * as fs from 'fs';
 import * as readLine from 'n-readlines';
 
 export class AdonisJSControllerLink extends DocumentLink {
-  filePath: string;
-  funcName: string;
-  controllerName: string;
+  filePath: string
+  funcName: string
+  controllerName: string
   constructor(range: Range, path: string, controllerName: string, funcName: string) {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
@@ -80,10 +80,13 @@ export function getLineNumber(text: string, path: string) {
   let line: any;
 
   // eslint-disable-next-line no-cond-assign
-  while (line = file.next()) {
+  while ((line = file.next())) {
     lineNum++;
     line = line.toString();
-    if (line.toLowerCase().includes(text.toLowerCase() + '(') || line.toLowerCase().includes(text.toLowerCase() + ' (')) {
+    if (
+      line.toLowerCase().includes(text.toLowerCase() + '(') ||
+      line.toLowerCase().includes(text.toLowerCase() + ' (')
+    ) {
       return lineNum;
     }
   }

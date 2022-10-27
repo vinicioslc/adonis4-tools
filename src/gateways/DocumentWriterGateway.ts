@@ -1,37 +1,40 @@
-import * as vscode from "vscode";
-import * as path from "path";
+import * as vscode from 'vscode';
+import * as path from 'path';
 
-import { AdonisFileInfo as AdonisFileInfo } from "../domain/AdonisFileInfo";
+import { AdonisFileInfo as AdonisFileInfo } from '../domain/AdonisFileInfo';
 
 export default class DocumentWriterGateway {
-  #textEditor: vscode.TextEditor;
-  currentRequireIndex: number;
+  #textEditor: vscode.TextEditor
+  currentRequireIndex: number
+
+  private readonly commentLineRegex = /(\/\*)(?!.*@ty)/im
 
   constructor(textEditor: vscode.TextEditor) {
     this.#textEditor = textEditor;
   }
 
-  async writeImportStatement(
-    fileInfo: AdonisFileInfo,
-    allClassesFiles: AdonisFileInfo[]
-  ) {
-    const constUseText = this.#generateImportText(fileInfo);
-    const constTypeText = this.#generateSetTypeText(fileInfo);
+  async writeImportStatement(fileInfo: AdonisFileInfo, allClassesFiles: AdonisFileInfo[]) {
+    const constUseText = this.makeDeclarationText(fileInfo);
+    const constTypeText = this.generateSetTypeText(fileInfo);
     const typedefText = this.#generateTypedef(fileInfo, allClassesFiles);
 
-    const hasUseStrict = this.#textEditor.document
-      .lineAt(1)
-      .text.includes("strict");
+    const hasUseStrict = this.#textEditor.document.lineAt(1).text.includes('strict');
     const AFTER_USE_STRICT = 2;
     const FIRST_LINE = 1;
     const INITIAL_LINE = hasUseStrict ? AFTER_USE_STRICT : FIRST_LINE;
-
-    const lineInsertAdonisUse = this.getLineToInsertRequire(
-      this.#textEditor.document,
-      INITIAL_LINE,
-      fileInfo
-    );
-    const lineInsertTypeOfConst = this.getLineToInsertType(
+    const hasAdonisUse = this.hasUseStatement(fileInfo, INITIAL_LINE, this.#textEditor.document);
+    let lineInsertAdonisUse = INITIAL_LINE;
+    // should reuse existing adonis use() statement
+    if (hasAdonisUse) {
+      lineInsertAdonisUse = hasAdonisUse;
+    } else {
+      lineInsertAdonisUse = this.getLineToInsertRequire(
+        this.#textEditor.document,
+        INITIAL_LINE,
+        fileInfo
+      );
+    }
+    const lineInsertDeclarationType = this.getLineToInsertType(
       this.#textEditor.document,
       lineInsertAdonisUse,
       fileInfo
@@ -42,34 +45,51 @@ export default class DocumentWriterGateway {
       fileInfo
     );
 
-    console.log("Class Data:", typedefText);
-    console.log("Import Type Text:", constTypeText);
-    console.log("Import Text:", constUseText);
+    console.log('Class Data:', typedefText);
+    console.log('Import Type Text:', constTypeText);
+    console.log('Import Text:', constUseText);
 
     return this.#textEditor.edit((editBuilder: vscode.TextEditorEdit) => {
       if (lineInsertTypedefinition) {
-        editBuilder.insert(
-          new vscode.Position(lineInsertTypedefinition, 0),
-          typedefText
-        );
+        editBuilder.insert(new vscode.Position(lineInsertTypedefinition, 0), '\r\n' + typedefText);
       }
-      if (lineInsertTypeOfConst) {
+      if (lineInsertDeclarationType) {
         editBuilder.insert(
           new vscode.Position(
-            lineInsertTypeOfConst,
-            this.#textEditor.document.lineAt(lineInsertTypeOfConst).text.length
+            lineInsertDeclarationType,
+            this.#textEditor.document.lineAt(lineInsertDeclarationType).text.length
           ),
-          constTypeText
+          '\r\n' + constTypeText
         );
       }
-      if (lineInsertAdonisUse) {
-        editBuilder.insert(
-          new vscode.Position(lineInsertAdonisUse, 0),
-          constUseText
-        );
+      if (!hasAdonisUse && lineInsertAdonisUse) {
+        editBuilder.insert(new vscode.Position(lineInsertAdonisUse, 0), constUseText + '\r\n');
       }
     });
   }
+
+  private hasUseStatement(
+    classInfo: AdonisFileInfo,
+    initialScanLine = 0,
+    textDocument: vscode.TextDocument
+  ) {
+    const classUseStatementRegex = this.generateUseRegex(classInfo);
+    const isClassDefinitionLine = /class(.*)\{/im;
+    let idxLine = initialScanLine;
+    while (idxLine < textDocument.lineCount) {
+      const currentLine: vscode.TextLine = textDocument.lineAt(idxLine);
+      if (classUseStatementRegex.test(currentLine.text)) {
+        // allreadyFound line to insert
+        return idxLine;
+      }
+      if (isClassDefinitionLine.test(currentLine.text)) {
+        return null;
+      }
+      idxLine++;
+    }
+    return null;
+  }
+
   private getLineToTypeDef(
     textDocument: vscode.TextDocument,
     INITIAL_LINE: number,
@@ -88,17 +108,9 @@ export default class DocumentWriterGateway {
       if (currentLine.text.match(/typedef/im) && !firstTypedefImport) {
         firstTypedefImport = idxLine; // line to insert is equal empty_line `-1`
       }
-      const typedefRegex =
-        "@typedef.*" +
-        classInfo.name +
-        ".*" +
-        classInfo.onlyName() +
-        ".*\\*\\/$";
+      const typedefRegex = '@typedef.*' + classInfo.name + '.*' + classInfo.onlyName + '.*\\*\\/$';
       // eslint-disable-next-line no-useless-escape
-      if (
-        currentLine.text.match(RegExp(typedefRegex, "mi")) &&
-        !allreadyImport
-      ) {
+      if (currentLine.text.match(RegExp(typedefRegex, 'mi')) && !allreadyImport) {
         allreadyImport = idxLine; // line to insert is equal empty_line `-1`
       }
       idxLine++;
@@ -136,9 +148,7 @@ export default class DocumentWriterGateway {
         firstEmtpyLine = idxLine; // line to insert is equal empty_line `-1`
       }
 
-      const isCurrentLineUseDirective = currentLineText.includes(
-        classInfo.usePath
-      );
+      const isCurrentLineUseDirective = currentLineText.includes(classInfo.usePath);
       // is this line has the current use('MyApp') statement
       if (isCurrentLineUseDirective) {
         this.currentRequireIndex = idxLine; // line to insert is equal empty_line `-1`
@@ -146,17 +156,14 @@ export default class DocumentWriterGateway {
       }
 
       if (
-        currentLineText.match(/(\/\*)(?!.*@ty)/im) &&
+        this.commentLineRegex.test(currentLineText ?? '') &&
         !firstMultilineCommentBeforeClass &&
         !firstClassOrExport
       ) {
-        firstMultilineCommentBeforeClass = idxLine; // line to insert is equal empty_line `-1`
+        firstMultilineCommentBeforeClass = idxLine - 1; // line to insert is equal empty_line `-1`
       }
 
-      if (
-        currentLineText.match(/(class)|(export)|({\n)/im) &&
-        !firstClassOrExport
-      ) {
+      if (currentLineText.match(/(class)|(export)|({\n)/im) && !firstClassOrExport) {
         firstClassOrExport = idxLine; // line to insert is equal empty_line `-1`
       }
       idxLine++;
@@ -184,25 +191,23 @@ export default class DocumentWriterGateway {
     if (lineToInsertRequire) {
       const currentLine = lineToInsertRequire - 1;
       const cRowText = textDocument.lineAt(currentLine).text;
-      if (cRowText.includes(classInfo.onlyName())) return null;
+      if (cRowText.includes(classInfo.onlyName)) return null;
       lineFound = lineToInsertRequire - 1;
     } else if (this.currentRequireIndex) {
       const currentLine = this.currentRequireIndex - 1;
       const cRowText = textDocument.lineAt(currentLine).text;
-      if (cRowText.includes(classInfo.onlyName())) return null;
+      if (cRowText.includes(classInfo.onlyName)) return null;
       lineFound = this.currentRequireIndex - 1;
     }
     return lineFound;
   }
 
-  #generateTypedef(
-    classInfo: AdonisFileInfo,
-    allClassesFiles: AdonisFileInfo[]
-  ) {
+  #generateTypedef(classInfo: AdonisFileInfo, allClassesFiles: AdonisFileInfo[]) {
     let realPath = classInfo.relativePathToFile;
-    if (realPath.includes("Program Files")) {
+    // is a provider file
+    if (realPath.includes('Program Files')) {
       const filename = path.parse(realPath).name;
-      const foundedRealFile = allClassesFiles.find((fileInfo) => {
+      const foundedRealFile = allClassesFiles.find(fileInfo => {
         if (fileInfo.isProvider) {
           return false;
         }
@@ -210,29 +215,40 @@ export default class DocumentWriterGateway {
       });
       realPath = foundedRealFile.relativePathToFile;
     }
-    let stringTypeOf = "";
-    if (realPath && realPath.includes("Models")) {
-      stringTypeOf = "typeof ";
+    let stringTypeOf = '';
+    if (realPath && realPath.includes('Models')) {
+      stringTypeOf = 'typeof ';
     }
     if (realPath && realPath.split(path.sep).length <= 1) {
-      realPath = "." + path.posix.sep + realPath;
+      realPath = '.' + path.posix.sep + realPath;
     }
-    const template = `/** @typedef {${stringTypeOf}import('${
-      realPath || null
-    }')} ${classInfo.onlyName() || null}*/
+    const template = `/** @typedef {${stringTypeOf}import('${realPath || null}')} ${
+      classInfo.onlyName || null
+    }*/
 `;
     return template;
   }
 
-  #generateImportText(classInfo: AdonisFileInfo): any {
-    return `const ${classInfo.onlyName() || null} = use('${
-      classInfo.getUsePath() || null
-    }')
-`;
+  private makeDeclarationText(classInfo: AdonisFileInfo): any {
+    let declarationName = classInfo.onlyName ?? null;
+    if (classInfo.isProvider) {
+      declarationName = classInfo.relativePathName;
+    }
+    return `const ${declarationName} = use('${classInfo.getUsePath() || null}')`;
   }
 
-  #generateSetTypeText(classInfo: AdonisFileInfo): any {
+  private generateUseRegex(classInfo: AdonisFileInfo): RegExp {
+    return RegExp(
+      // eslint-disable-next-line no-useless-escape
+      `(const|let) ${classInfo?.onlyName ?? null} = use\\('${
+        classInfo?.getUsePath()?.split('\\/')?.join('/') ?? null
+      }'\\)`,
+      'mi'
+    );
+  }
+
+  private generateSetTypeText(classInfo: AdonisFileInfo): any {
     return `
-/** @type {${classInfo.onlyName() || null}}*/`;
+/** @type {${classInfo.onlyName || null}}*/`;
   }
 }
