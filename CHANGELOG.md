@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.12](https://github.com/vinicioslc/adonis4-tools/compare/v0.2.11...v0.2.12) (2022-10-28)
+
+
+### Documentation
+
+* add integration tests badge ([bba2db2](https://github.com/vinicioslc/adonis4-tools/commits/bba2db24ab894094e08b0ac3e1d2d07b89756003))
+* update readme description ([f5e11d0](https://github.com/vinicioslc/adonis4-tools/commits/f5e11d0eb30bb675cd97bff55d9f396a39ff7b80))
+
 ### [0.2.11](https://github.com/vinicioslc/adonis4-tools/compare/v0.2.10...v0.2.11) (2022-10-28)
 
 ### Features
