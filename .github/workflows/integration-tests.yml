@@ -2,8 +2,14 @@ name: Run integration test suite
 
 # Only trigger, when the build workflow succeeded
 on:
+  pull_request:
+    branches:
+      - main
+      - production
   push:
     branches:
+      - main
+      - production
       - feat/end-to-end-testing
   workflow_dispatch:
 env:
