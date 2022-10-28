@@ -1,0 +1,28 @@
+name: Run integration test suite
+
+# Only trigger, when the build workflow succeeded
+on:
+  push:
+    branches:
+      - feat/end-to-end-testing
+  workflow_dispatch:
+env:
+  VSCE_DEPLOY_TOKEN: ${{ secrets.VSCE_DEPLOY_TOKEN }} # set visual studio deploy token globally
+
+jobs:
+  publish:
+    name: Deploy extension to production, with node 12 on ubuntu-latest
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Use Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 14
+      - name: npm install and test
+        run: |
+          export DISPLAY=:99
+          sudo apt-get install xorg openbox
+          sudo Xvfb -ac :99 -screen 0 1280x1024x24 > /dev/null 2>&1 &
+          npm install --production=false
+          npm test
