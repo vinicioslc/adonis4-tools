@@ -9,7 +9,7 @@ import { workspace, ExtensionContext, commands, window } from 'vscode';
 
 import ClassResolverGateway from './gateways/ClassResolverGateway';
 import DocumentWriterGateway from './gateways/DocumentWriterGateway';
-import FilePicker from './presenters/FilePickerPresenter';
+import FilePickerPresenter from './presenters/FilePickerPresenter';
 import UserSelectAdonisClassCase from './use-cases/UserSelectAdonisClassCase';
 
 
@@ -23,7 +23,7 @@ export function activate(context: ExtensionContext) {
         try {
           allreadyGettingFiles = true;
 
-          const picker = new FilePicker(window.showQuickPick);
+          const picker = new FilePickerPresenter(window.showQuickPick);
           const classResolver = new ClassResolverGateway(workspace.findFiles);
           const documentWritter = new DocumentWriterGateway(window.activeTextEditor);
           await (new UserSelectAdonisClassCase(picker, classResolver, documentWritter)).execute();

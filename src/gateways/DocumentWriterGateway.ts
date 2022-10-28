@@ -4,13 +4,13 @@ import * as path from 'path';
 import { AdonisFileInfo as AdonisFileInfo } from '../domain/AdonisFileInfo';
 
 export default class DocumentWriterGateway {
-  #textEditor: vscode.TextEditor
+  private textEditor: vscode.TextEditor
   currentRequireIndex: number
 
   private readonly commentLineRegex = /(\/\*)(?!.*@ty)/im
 
   constructor(textEditor: vscode.TextEditor) {
-    this.#textEditor = textEditor;
+    this.textEditor = textEditor;
   }
 
   async writeImportStatement(fileInfo: AdonisFileInfo, allClassesFiles: AdonisFileInfo[]) {
@@ -18,29 +18,29 @@ export default class DocumentWriterGateway {
     const constTypeText = this.generateSetTypeText(fileInfo);
     const typedefText = this.#generateTypedef(fileInfo, allClassesFiles);
 
-    const hasUseStrict = this.#textEditor.document.lineAt(1).text.includes('strict');
+    const hasUseStrict = this.textEditor.document.lineAt(1).text.includes('strict');
     const AFTER_USE_STRICT = 2;
     const FIRST_LINE = 1;
     const INITIAL_LINE = hasUseStrict ? AFTER_USE_STRICT : FIRST_LINE;
-    const hasAdonisUse = this.hasUseStatement(fileInfo, INITIAL_LINE, this.#textEditor.document);
+    const hasAdonisUse = this.hasUseStatement(fileInfo, INITIAL_LINE, this.textEditor.document);
     let lineInsertAdonisUse = INITIAL_LINE;
     // should reuse existing adonis use() statement
     if (hasAdonisUse) {
       lineInsertAdonisUse = hasAdonisUse;
     } else {
       lineInsertAdonisUse = this.getLineToInsertRequire(
-        this.#textEditor.document,
+        this.textEditor.document,
         INITIAL_LINE,
         fileInfo
       );
     }
     const lineInsertDeclarationType = this.getLineToInsertType(
-      this.#textEditor.document,
+      this.textEditor.document,
       lineInsertAdonisUse,
       fileInfo
     );
     const lineInsertTypedefinition = this.getLineToTypeDef(
-      this.#textEditor.document,
+      this.textEditor.document,
       INITIAL_LINE,
       fileInfo
     );
@@ -49,7 +49,7 @@ export default class DocumentWriterGateway {
     console.log('Import Type Text:', constTypeText);
     console.log('Import Text:', constUseText);
 
-    return this.#textEditor.edit((editBuilder: vscode.TextEditorEdit) => {
+    return this.textEditor.edit((editBuilder: vscode.TextEditorEdit) => {
       if (lineInsertTypedefinition) {
         editBuilder.insert(new vscode.Position(lineInsertTypedefinition, 0), '\r\n' + typedefText);
       }
@@ -57,7 +57,7 @@ export default class DocumentWriterGateway {
         editBuilder.insert(
           new vscode.Position(
             lineInsertDeclarationType,
-            this.#textEditor.document.lineAt(lineInsertDeclarationType).text.length
+            this.textEditor.document.lineAt(lineInsertDeclarationType).text.length
           ),
           '\r\n' + constTypeText
         );
