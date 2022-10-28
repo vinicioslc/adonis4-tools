@@ -2,7 +2,7 @@
 
 <div style="text-align:center"><img src="https://raw.githubusercontent.com/vinicioslc/adonis4-tools/main/media/icon.png" width="200" /></div>
 
-[![Deploy Badge](https://github.com/vinicioslc/adonis4-tools/actions/workflows/production.deploy.yml/badge.svg)](https://github.com/vinicioslc/adonis4-tools/actions/workflows/production.deploy.yml)
+[![Run integration tests](https://github.com/vinicioslc/adonis4-tools/actions/workflows/integration-tests.yml/badge.svg)](https://github.com/vinicioslc/adonis4-tools/actions/workflows/integration-tests.yml)
 
 ##### Hotkey: Ctrl + Shift + A
 

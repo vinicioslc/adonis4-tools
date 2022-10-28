@@ -1,4 +1,4 @@
-name: Run integration test suite
+name: Run integration tests
 
 # Only trigger, when the build workflow succeeded
 on:
