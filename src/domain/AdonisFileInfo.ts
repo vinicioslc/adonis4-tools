@@ -10,7 +10,7 @@ export class AdonisFileInfo {
   name: string;
   rawPath: string;
   usePath: string;
-  relativePathToFile: string = null;
+  requireRelativeToFile: string = null;
 
   get isProvider(): boolean {
     return this.providerType != null;
@@ -26,7 +26,7 @@ export class AdonisFileInfo {
 
   get relativePathName() {
     try {
-      return path.parse(this.relativePathToFile).name || this.name;
+      return path.parse(this.requireRelativeToFile).name || this.name;
     } catch (e) {
       console.error(e);
       return '';

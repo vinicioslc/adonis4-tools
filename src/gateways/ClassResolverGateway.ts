@@ -66,13 +66,10 @@ export default class ClassResolverGateway {
   async #findAndMapClasses() {
     return (await this.#findFilesByGlobs([this.appClassPath])).map((file: AdonisFileInfo) => {
       file.usePath = file.getUsePath();
-      file.relativePathToFile = path
+      file.requireRelativeToFile = path
         .normalize(
           path
-            .relative(
-              vscode.window.activeTextEditor.document.fileName,
-              path.normalize(file.rawPath)
-            )
+            .relative(vscode.window.activeTextEditor.document.uri.fsPath, file.rawPath)
             .substring(3)
         )
         .split('\\')
@@ -119,7 +116,13 @@ export default class ClassResolverGateway {
           if (hasRegisterFunc !== null && usePathFound !== null && requirePathFound === null) {
             const requireRegex = /((require)|(app\.use))\(['"]([\w\W]+)['"]/im.exec(lineString);
             if (requireRegex && requireRegex.length > 0) {
-              requirePathFound = requireRegex[4];
+              const reqPathFound = requireRegex[4];
+              // transform '<absolute>\\sample-project\\providers\\VirtualSealsProvider.js'
+              // with '<absolute>\\sample-project\\providers\\VirtualSealsProvider.js'
+              // into '<absolute>\\sample-project\\providers\\VirtualSealsProvider.js'
+              requirePathFound = path.normalize(
+                path.join(path.parse(file.rawPath).dir, reqPathFound)
+              );
             }
           }
           if (
@@ -140,16 +143,16 @@ export default class ClassResolverGateway {
       }
       const currentFilePath = vscode.window.activeTextEditor.document.fileName;
       file.usePath = usePathFound;
-      if (requirePathFound === null) {
-        console.log('Not found', requirePathFound);
-        const normalized = path.normalize(file.rawPath);
-        file.relativePathToFile = path
-          .normalize(path.relative(currentFilePath, normalized))
+      if (requirePathFound) {
+        const servicePath = path.normalize(requirePathFound);
+        file.requireRelativeToFile = path
+          .normalize(path.relative(path.parse(currentFilePath).dir, servicePath))
           .split('\\')
           .join('/');
       } else {
-        const normalized = path.normalize(requirePathFound);
-        file.relativePathToFile = path
+        console.log('Not found', requirePathFound);
+        const normalized = path.normalize(file.rawPath);
+        file.requireRelativeToFile = path
           .normalize(path.relative(currentFilePath, normalized))
           .split('\\')
           .join('/');

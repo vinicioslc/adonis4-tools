@@ -203,26 +203,23 @@ export default class DocumentWriterGateway {
   }
 
   #generateTypedef(classInfo: AdonisFileInfo, allClassesFiles: AdonisFileInfo[]) {
-    let realPath = classInfo.relativePathToFile;
+    let importPath = classInfo.requireRelativeToFile;
     // is a provider file
-    if (realPath.includes('Program Files')) {
-      const filename = path.parse(realPath).name;
+    if (importPath.includes('Program Files')) {
+      const filename = path.parse(importPath).name;
       const foundedRealFile = allClassesFiles.find(fileInfo => {
         if (fileInfo.isProvider) {
           return false;
         }
         return path.parse(fileInfo.usePath).name === filename;
       });
-      realPath = foundedRealFile.relativePathToFile;
+      importPath = foundedRealFile.requireRelativeToFile;
     }
-    let stringTypeOf = '';
-    if (realPath && realPath.includes('Models')) {
-      stringTypeOf = 'typeof ';
+    let importSuffix = '';
+    if (importPath && importPath.includes('Models')) {
+      importSuffix = 'typeof ';
     }
-    if (realPath && realPath.split(path.sep).length <= 1) {
-      realPath = '.' + path.posix.sep + realPath;
-    }
-    const template = `/** @typedef {${stringTypeOf}import('${realPath || null}')} ${
+    const template = `/** @typedef {${importSuffix}import('${importPath || null}')} ${
       classInfo.onlyName || null
     }*/
 `;

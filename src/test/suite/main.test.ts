@@ -9,7 +9,7 @@ const VirtualSealService = use('Providers/VirtualSealService')
 
 /** Type Definitions */
 
-/** @typedef {import('./../../../../../../../.vscode-test/app/Services/VirtualSealService.js')} VirtualSealsProvider*/
+/** @typedef {import('../../Services/VirtualSealService.js')} VirtualSealsProvider*/
 /** @typedef {typeof import('../../Models/VirtualSeal.js')} VirtualSeal*/
 
 // eslint-disable-next-line no-undef
