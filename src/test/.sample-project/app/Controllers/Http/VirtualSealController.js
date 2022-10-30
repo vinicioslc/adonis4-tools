@@ -1,7 +1,7 @@
 'use strict';
 
 /** Type Definitions */
-/** @typedef {typeof import('../../Models/VirtualSeal.js')} VirtualSeal*/
+/** @typedef {typeof import('../../Models/VirtualSeal.js.js')} VirtualSeal*/
 
 // eslint-disable-next-line no-undef
 const VirtualSeal = use('App/Models/VirtualSeal');

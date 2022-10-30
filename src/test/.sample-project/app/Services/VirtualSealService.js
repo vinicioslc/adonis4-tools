@@ -18,7 +18,7 @@ const { InvalidArgumentException, DomainException } = require('@adonisjs/generic
 
 class VirtualSealsService {
   constructor(sealingService) {
-    /** @type { import('../Services/SealingService')} */
+    /** @type { import('./SealingService')} */
     this.sealingService = sealingService
   }
 }

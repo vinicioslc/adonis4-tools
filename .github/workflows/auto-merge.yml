@@ -22,7 +22,7 @@ jobs:
       - name: Do Auto Merge PRs
         uses: vinicioslc/merge-bot@latest
         with:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.PAT_GITHUB }}
           test: false
           reviewers: false
           checks_enabled: true

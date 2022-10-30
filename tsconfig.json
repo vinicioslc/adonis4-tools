@@ -12,7 +12,7 @@
   },
   "include": [
     "src"
-  ],
+, "src/test/.sample-project"  ],
   "exclude": [
     "node_modules",
     ".vscode-test"

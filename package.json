@@ -24,20 +24,35 @@
     "pretest": "npm run compile",
     "test": "node ./out/test/runTest.js",
     "publish": "npx vsce publish -p $VSCE_DEPLOY_TOKEN",
-    "release": "standard-version",
-    "release:minor": "standard-version --release-as minor",
-    "release:patch": "standard-version --release-as patch",
-    "release:major": "standard-version --release-as major"
+    "_____________________________________________________": "UTILITY SCRIPTS",
+    "prepare": "husky install",
+    "commit": "npm run cm",
+    "cm": "cz",
+    "cma": "git add . && cz",
+    "ri": "npm run release",
+    "rici": "release-it --ci",
+    "release": "release-it",
+    "release:patch": "release-it patch",
+    "release:minor": "release-it minor",
+    "release:major": "release-it major"
   },
   "devDependencies": {
-    "@commitlint/cli": "^13.1.0",
-    "@commitlint/config-conventional": "^13.1.0",
+    "@commitlint/cli": "^16.3.0",
+    "@favoloso/conventional-changelog-emoji": "^0.10.0",
+    "@release-it/bumper": "^4.0.0",
+    "commitizen": "^4.2.4",
+    "commitlint-config-gitmoji": "^2.2.5",
+    "concurrently": "^7.1.0",
+    "cross-env": "^7.0.3",
+    "cz-customizable": "^6.3.0",
+    "release-it": "^15.5.0",
     "@types/mocha": "^8.2.2",
     "@types/node": "^12.12.0",
     "@types/vscode": "^1.58.1",
     "@typescript-eslint/eslint-plugin": "^4.23.0",
     "@typescript-eslint/parser": "^4.23.0",
     "@vscode/test-electron": "^1.6.1",
+    "jest": "^29.2.2",
     "assert": "^2.0.0",
     "eslint": "^7.26.0",
     "glob": "^8.0.3",
@@ -95,9 +110,15 @@
       }
     ]
   },
-  "husky": {
-    "hooks": {
-      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
+  "favolosoEmoji": {
+    "showEmojiPerCommit": true
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "config": {
+    "commitizen": {
+      "path": "cz-customizable"
     }
   }
 }

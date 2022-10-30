@@ -117,9 +117,9 @@ export default class ClassResolverGateway {
             const requireRegex = /((require)|(app\.use))\(['"]([\w\W]+)['"]/im.exec(lineString);
             if (requireRegex && requireRegex.length > 0) {
               const reqPathFound = requireRegex[4];
-              // transform '<absolute>\\sample-project\\providers\\VirtualSealsProvider.js'
-              // with '<absolute>\\sample-project\\providers\\VirtualSealsProvider.js'
-              // into '<absolute>\\sample-project\\providers\\VirtualSealsProvider.js'
+              // transform '<absolute>\\.sample-project\\providers\\VirtualSealsProvider.js'
+              // with '<absolute>\\.sample-project\\providers\\VirtualSealsProvider.js'
+              // into '<absolute>\\.sample-project\\providers\\VirtualSealsProvider.js'
               requirePathFound = path.normalize(
                 path.join(path.parse(file.rawPath).dir, reqPathFound)
               );

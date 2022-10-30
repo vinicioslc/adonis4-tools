@@ -12,7 +12,7 @@
       "runtimeExecutable": "${execPath}",
       "args": [
         "--extensionDevelopmentPath=${workspaceFolder}",
-        "${workspaceFolder}/src/test/sample-project",
+        "${workspaceFolder}/src/test/.sample-project",
         // This disables all extensions except the one being testedF
       ],
       "outFiles": [
@@ -28,7 +28,7 @@
       "args": [
         "--extensionDevelopmentPath=${workspaceFolder}",
         "--extensionTestsPath=${workspaceFolder}/out/test/suite/index",
-        "${workspaceFolder}/src/test/sample-project",
+        "${workspaceFolder}/src/test/.sample-project",
         // This disables all extensions except the one being tested
       ],
       "outFiles": [
