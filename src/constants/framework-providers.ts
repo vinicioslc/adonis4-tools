@@ -1,4 +1,4 @@
-module.exports = [
+export default [
   ['@adonisjs/bodyparser/src/Multipart/File', 'File'],
   ['@adonisjs/auth/src/Schemes/Session', 'AuthSession'],
   ['@adonisjs/framework/src/Env', 'Env'],

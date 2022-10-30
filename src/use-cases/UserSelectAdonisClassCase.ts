@@ -52,7 +52,7 @@ export default class UserSelectAdonisClassCase {
         detail: adonisClass.rawPath
       };
       if (adonisClass.isProvider) {
-        item.description = adonisClass.providerType.toString();
+        item.description = adonisClass.importType.toString();
       }
       return item;
     } catch (error) {

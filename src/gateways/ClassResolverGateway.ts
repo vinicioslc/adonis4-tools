@@ -1,8 +1,11 @@
 import * as lineByLine from 'n-readlines';
+
+import frameworkProviders from '../constants/framework-providers';
+
 import * as path from 'path';
 import * as vscode from 'vscode';
 import { CancellationToken, GlobPattern, Uri } from 'vscode';
-import { AdonisFileInfo as AdonisFileInfo, ProviderType } from '../domain/AdonisFileInfo';
+import { AdonisFileInfo, ImportType } from '../domain/AdonisFileInfo';
 
 type FindFiles = (
   include: GlobPattern,
@@ -31,9 +34,10 @@ export default class ClassResolverGateway {
   }
 
   async getAllClasses(): Promise<AdonisFileInfo[]> {
-    const classes = await this.#findAndMapClasses();
-    const providers = await this.#findAndMapProviders(classes);
-    return [...providers, ...classes];
+    const classes = await this.fetchAppClasses();
+    const embeddedproviders = await this.fetchFrameworkProviders();
+    const providers = await this.fetchUserProviders(classes);
+    return [...providers, ...classes, ...embeddedproviders];
   }
 
   async #findFilesByGlobs(
@@ -63,9 +67,10 @@ export default class ClassResolverGateway {
     });
   }
 
-  async #findAndMapClasses() {
+  private async fetchAppClasses() {
     return (await this.#findFilesByGlobs([this.appClassPath])).map((file: AdonisFileInfo) => {
       file.usePath = file.getUsePath();
+      file.importType = ImportType.AppClass;
       file.requireRelativeToFile = path
         .normalize(
           path
@@ -78,7 +83,19 @@ export default class ClassResolverGateway {
     });
   }
 
-  async #findAndMapProviders(allClassesFiles: AdonisFileInfo[]) {
+  private fetchFrameworkProviders(): AdonisFileInfo[] {
+    return frameworkProviders.map(entry => {
+      const [link, name] = entry;
+      const fileInfo = new AdonisFileInfo(name, link, name);
+      fileInfo.requireRelativeToFile = link;
+      fileInfo.rawPath = name;
+
+      fileInfo.importType = ImportType.EmbeddedFramework;
+      return fileInfo;
+    });
+  }
+
+  private async fetchUserProviders(allClassesFiles: AdonisFileInfo[]) {
     return (await this.#findFilesByGlobs([this.appClassesPath])).map((file: AdonisFileInfo) => {
       let hasRegisterFunc = null;
 
@@ -103,13 +120,13 @@ export default class ClassResolverGateway {
             const sigletonRegex = /singleton\(['"]([\w\W]+)['"]/im.exec(lineString);
             if (sigletonRegex && sigletonRegex.length >= 1) {
               // get namespace as path
-              file.providerType = ProviderType.Singleton;
+              file.importType = ImportType.Singleton;
               usePathFound = sigletonRegex[1];
             }
             const bindableRegex = /bind\(['"]([\w\W]+)['"]/im.exec(lineString);
             if (bindableRegex && bindableRegex.length >= 1) {
               // get namespace as path
-              file.providerType = ProviderType.Bind;
+              file.importType = ImportType.Bind;
               usePathFound = bindableRegex[1];
             }
           }
