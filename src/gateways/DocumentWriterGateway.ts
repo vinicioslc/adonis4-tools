@@ -15,55 +15,54 @@ export default class DocumentWriterGateway {
 
   async writeImportStatement(fileInfo: AdonisFileInfo, allClassesFiles: AdonisFileInfo[]) {
     const constUseText = this.makeDeclarationText(fileInfo);
-    const constTypeText = this.generateSetTypeText(fileInfo);
-    const typedefText = this.#generateTypedef(fileInfo, allClassesFiles);
+    const typeText = this.generateTypeText(fileInfo);
+    const typedefText = this.generateTypedef(fileInfo, allClassesFiles);
 
     const hasUseStrict = this.textEditor.document.lineAt(1).text.includes('strict');
-    const AFTER_USE_STRICT = 2;
+
     const FIRST_LINE = 1;
+    const AFTER_USE_STRICT = FIRST_LINE + 1;
     const INITIAL_LINE = hasUseStrict ? AFTER_USE_STRICT : FIRST_LINE;
     const hasAdonisUse = this.hasUseStatement(fileInfo, INITIAL_LINE, this.textEditor.document);
-    let lineInsertAdonisUse = INITIAL_LINE;
+    let useLine = INITIAL_LINE;
     // should reuse existing adonis use() statement
     if (hasAdonisUse) {
-      lineInsertAdonisUse = hasAdonisUse;
+      useLine = hasAdonisUse;
     } else {
-      lineInsertAdonisUse = this.getLineToInsertRequire(
-        this.textEditor.document,
-        INITIAL_LINE,
-        fileInfo
-      );
+      useLine = this.getLineToPlaceDeclaration(INITIAL_LINE, this.textEditor.document);
     }
-    const lineInsertDeclarationType = this.getLineToInsertType(
-      this.textEditor.document,
-      lineInsertAdonisUse,
-      fileInfo
-    );
-    const lineInsertTypedefinition = this.getLineToTypeDef(
-      this.textEditor.document,
-      INITIAL_LINE,
-      fileInfo
-    );
+    const hasTypeDef = this.hasTypeDef(this.textEditor.document, useLine, fileInfo);
+    const hasTypeLine = this.hasTypeLine(this.textEditor.document, FIRST_LINE, fileInfo);
+    const putTypedefLine = this.getTypeDefLine(this.textEditor.document, INITIAL_LINE, fileInfo);
 
-    console.log('Class Data:', typedefText);
-    console.log('Import Type Text:', constTypeText);
-    console.log('Import Text:', constUseText);
+    console.log('Typedef:', typedefText);
+    console.log('Type:', typeText);
+    console.log('Const:', constUseText);
 
     return this.textEditor.edit((editBuilder: vscode.TextEditorEdit) => {
-      if (lineInsertTypedefinition) {
-        editBuilder.insert(new vscode.Position(lineInsertTypedefinition, 0), '\r\n' + typedefText);
-      }
-      if (lineInsertDeclarationType) {
+      if (!hasTypeDef && putTypedefLine) {
         editBuilder.insert(
           new vscode.Position(
-            lineInsertDeclarationType,
-            this.textEditor.document.lineAt(lineInsertDeclarationType).text.length
+            putTypedefLine,
+            this.textEditor.document.lineAt(putTypedefLine).text.length
           ),
-          '\r\n' + constTypeText
+          '\r\n' + typedefText
         );
       }
-      if (!hasAdonisUse && lineInsertAdonisUse) {
-        editBuilder.insert(new vscode.Position(lineInsertAdonisUse, 0), constUseText + '\r\n');
+      if (!hasAdonisUse && useLine) {
+        let requireText = '\r\n' + constUseText;
+        if (!hasTypeLine) {
+          requireText = '\r\n' + typeText + '\r\n' + constUseText;
+        }
+        editBuilder.insert(
+          new vscode.Position(useLine, this.textEditor.document.lineAt(useLine).text.length),
+          requireText
+        );
+      }
+      if (useLine && !hasTypeLine && hasAdonisUse) {
+        const lineBeforeConst = useLine;
+        const typeTextLine = typeText + '\r\n';
+        editBuilder.insert(new vscode.Position(lineBeforeConst, 0), typeTextLine);
       }
     });
   }
@@ -74,7 +73,7 @@ export default class DocumentWriterGateway {
     textDocument: vscode.TextDocument
   ) {
     const classUseStatementRegex = this.generateUseRegex(classInfo);
-    const isClassDefinitionLine = /class(.*)\{/im;
+    const isClassDefinitionLine = this.getClassDeclarationRegex();
     let idxLine = initialScanLine;
     while (idxLine < textDocument.lineCount) {
       const currentLine: vscode.TextLine = textDocument.lineAt(idxLine);
@@ -90,7 +89,34 @@ export default class DocumentWriterGateway {
     return null;
   }
 
-  private getLineToTypeDef(
+  private getLineToPlaceDeclaration(initialScanLine = 0, textDocument: vscode.TextDocument) {
+    const classUseStatementRegex = this.getConstDeclarationRegex();
+    // eslint-disable-next-line no-useless-escape
+    const isClassDefinitionLine = this.getClassDeclarationRegex();
+    let idxLine = initialScanLine;
+    while (idxLine < textDocument.lineCount) {
+      const currentLine: vscode.TextLine = textDocument.lineAt(idxLine);
+      if (classUseStatementRegex.test(currentLine.text)) {
+        // allreadyFound line to insert
+        return idxLine;
+      }
+      if (isClassDefinitionLine.test(currentLine.text)) {
+        return null;
+      }
+      idxLine++;
+    }
+    return null;
+  }
+  private getClassDeclarationRegex() {
+    // eslint-disable-next-line no-useless-escape
+    return /(\/[\*]{2,}\n)|(class(.*)\{)|(\/[\*]{2,}\r\n)/gim;
+  }
+
+  private getConstDeclarationRegex() {
+    // eslint-disable-next-line no-control-regex, no-useless-escape
+    return /(let|const)[\s\t]*([A-z0-9]+)[\s\t]*\=[\s\t]*/gim;
+  }
+  private getTypeDefLine(
     textDocument: vscode.TextDocument,
     INITIAL_LINE: number,
     classInfo: AdonisFileInfo
@@ -108,7 +134,7 @@ export default class DocumentWriterGateway {
       if (currentLine.text.match(/typedef/im) && !firstTypedefImport) {
         firstTypedefImport = idxLine; // line to insert is equal empty_line `-1`
       }
-      const typedefRegex = '@typedef.*' + classInfo.name + '.*' + classInfo.onlyName + '.*\\*\\/$';
+      const typedefRegex = this.generateTypedefRegex(classInfo);
       // eslint-disable-next-line no-useless-escape
       if (currentLine.text.match(RegExp(typedefRegex, 'mi')) && !allreadyImport) {
         allreadyImport = idxLine; // line to insert is equal empty_line `-1`
@@ -129,7 +155,7 @@ export default class DocumentWriterGateway {
     return lineToInsert;
   }
 
-  private getLineToInsertRequire(
+  private getRequireLine(
     textDocument: vscode.TextDocument,
     INITIAL_LINE: number,
     classInfo: AdonisFileInfo
@@ -180,29 +206,58 @@ export default class DocumentWriterGateway {
 
     return lineToInsert;
   }
-
-  private getLineToInsertType(
+  /**
+   * this function traverse all lines of file searching for a typedef declaration if it found a class declaration it stops and return null
+   * @param  {vscode.TextDocument} textDocument
+   * @param  {number} lineOfConstRequire
+   * @param  {AdonisFileInfo} classInfo
+   */
+  private hasTypeDef(
     textDocument: vscode.TextDocument,
-    lineToInsertRequire: number,
+    lineOfConstRequire: number,
     classInfo: AdonisFileInfo
   ) {
-    let lineFound = null;
+    const classUseStatementRegex = this.generateTypedefRegex(classInfo);
+    const isClassDefinitionLine = this.getClassDeclarationRegex();
 
-    if (lineToInsertRequire) {
-      const currentLine = lineToInsertRequire - 1;
-      const cRowText = textDocument.lineAt(currentLine).text;
-      if (cRowText.includes(classInfo.onlyName)) return null;
-      lineFound = lineToInsertRequire - 1;
-    } else if (this.currentRequireIndex) {
-      const currentLine = this.currentRequireIndex - 1;
-      const cRowText = textDocument.lineAt(currentLine).text;
-      if (cRowText.includes(classInfo.onlyName)) return null;
-      lineFound = this.currentRequireIndex - 1;
+    let idxLine = lineOfConstRequire;
+    while (idxLine < textDocument.lineCount) {
+      const currentLine: vscode.TextLine = textDocument.lineAt(idxLine);
+      if (classUseStatementRegex.test(currentLine.text)) {
+        // allreadyFound line to insert
+        return idxLine;
+      }
+      if (isClassDefinitionLine.test(currentLine.text)) {
+        return null;
+      }
+      idxLine++;
     }
-    return lineFound;
+    return null;
   }
 
-  #generateTypedef(classInfo: AdonisFileInfo, allClassesFiles: AdonisFileInfo[]) {
+  private hasTypeLine(
+    textDocument: vscode.TextDocument,
+    lineOfConstRequire: number,
+    classInfo: AdonisFileInfo
+  ) {
+    const typeStatementRegex = this.generateTypeRegex(classInfo);
+    const isClassDefinitionLine = /class(.*)\{/im;
+    let idxLine = lineOfConstRequire;
+    while (idxLine < textDocument.lineCount) {
+      const currentLine: vscode.TextLine = textDocument.lineAt(idxLine);
+      if (typeStatementRegex.test(currentLine.text)) {
+        // allreadyFound line to insert
+        return idxLine;
+      }
+      if (isClassDefinitionLine.test(currentLine.text)) {
+        return null;
+      }
+      idxLine++;
+    }
+    return null;
+  }
+
+  private generateTypedef(classInfo: AdonisFileInfo, allClassesFiles: AdonisFileInfo[]) {
     let importPath = classInfo.requireRelativeToFile;
     // is a provider file
     if (importPath.includes('Program Files')) {
@@ -221,17 +276,8 @@ export default class DocumentWriterGateway {
     }
     const template = `/** @typedef {${importSuffix}import('${importPath || null}')} ${
       classInfo.onlyName || null
-    }*/
-`;
+    }*/`;
     return template;
-  }
-
-  private makeDeclarationText(classInfo: AdonisFileInfo): any {
-    let declarationName = classInfo.onlyName ?? null;
-    if (classInfo.isProvider) {
-      declarationName = classInfo.relativePathName;
-    }
-    return `const ${declarationName} = use('${classInfo.getUsePath() || null}')`;
   }
 
   private generateUseRegex(classInfo: AdonisFileInfo): RegExp {
@@ -244,8 +290,30 @@ export default class DocumentWriterGateway {
     );
   }
 
-  private generateSetTypeText(classInfo: AdonisFileInfo): any {
-    return `
-/** @type {${classInfo.onlyName || null}}*/`;
+  private generateTypedefRegex(classInfo: AdonisFileInfo): RegExp {
+    return RegExp(
+      // eslint-disable-next-line no-useless-escape
+      `[\/*\s]*@typedef.*${classInfo.name}.*${classInfo.onlyName}.*\\*\/`,
+      'mi'
+    );
+  }
+
+  private generateTypeRegex(classInfo: AdonisFileInfo): RegExp {
+    return RegExp(
+      // eslint-disable-next-line no-useless-escape
+      `[\/*\s]*@type.*[\{\s]+${classInfo.onlyName}[\}\s]+.*\\*\/`,
+      'mi'
+    );
+  }
+
+  private makeDeclarationText(classInfo: AdonisFileInfo): any {
+    let declarationName = classInfo.onlyName ?? null;
+    if (classInfo.isProvider) {
+      declarationName = classInfo.relativePathName;
+    }
+    return `const ${declarationName} = use('${classInfo.getUsePath() || null}')`;
+  }
+  private generateTypeText(classInfo: AdonisFileInfo): any {
+    return `/** @type {${classInfo.onlyName || null}}*/`;
   }
 }
