@@ -1,4 +1,9 @@
 import * as vscode from 'vscode';
+
+import {
+  isNil
+} from 'lodash';
+
 import * as path from 'path';
 
 import { AdonisFileInfo as AdonisFileInfo } from '../domain/AdonisFileInfo';
@@ -14,65 +19,93 @@ export default class DocumentWriterGateway {
   }
 
   async writeImportStatement(fileInfo: AdonisFileInfo, allClassesFiles: AdonisFileInfo[]) {
-    const constUseText = this.makeDeclarationText(fileInfo);
+    const useText = this.makeDeclarationText(fileInfo);
     const typeText = this.generateTypeText(fileInfo);
-    const typedefText = this.generateTypedef(fileInfo, allClassesFiles);
 
-    const hasUseStrict = this.textEditor.document.lineAt(1).text.includes('strict');
+    const FIRST_LINE_TEXT = this.textEditor.document.lineAt(0).text;
+    const hasUseStrict = /(use strict)/gmi.test(FIRST_LINE_TEXT);
 
     const FIRST_LINE = 1;
     const AFTER_USE_STRICT = FIRST_LINE + 1;
     const INITIAL_LINE = hasUseStrict ? AFTER_USE_STRICT : FIRST_LINE;
-    const hasAdonisUse = this.hasUseStatement(fileInfo, INITIAL_LINE, this.textEditor.document);
-    let useLine = INITIAL_LINE;
+    const hasImportConst = this.alreadyHasRequire(fileInfo, INITIAL_LINE, this.textEditor.document);
+    let importIndex = this.getLineToPlaceDeclaration(INITIAL_LINE, this.textEditor.document) ?? INITIAL_LINE;
     // should reuse existing adonis use() statement
-    if (hasAdonisUse) {
-      useLine = hasAdonisUse;
-    } else {
-      useLine = this.getLineToPlaceDeclaration(INITIAL_LINE, this.textEditor.document);
+    if (hasImportConst) {
+      importIndex = hasImportConst;
     }
-    const hasTypeDef = this.hasTypeDef(this.textEditor.document, useLine, fileInfo);
-    const hasTypeLine = this.hasTypeLine(this.textEditor.document, FIRST_LINE, fileInfo);
-    const putTypedefLine = this.getTypeDefLine(this.textEditor.document, INITIAL_LINE, fileInfo);
 
-    console.log('Typedef:', typedefText);
+    console.log('Use:', useText);
     console.log('Type:', typeText);
-    console.log('Const:', constUseText);
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
+    const that = this;
 
-    return this.textEditor.edit((editBuilder: vscode.TextEditorEdit) => {
-      if (!hasTypeDef && putTypedefLine) {
+    function addConst(editBuilder: vscode.TextEditorEdit, textEditor) {
+      if (importIndex && !hasImportConst) {
+        const LINE_TEXT = textEditor.document.lineAt(importIndex).text;
+        const hastTypeLine = that.getConstIdx(that.textEditor.document, FIRST_LINE, fileInfo);
+        let requireText = '\r\n' + useText;
+        if (!hastTypeLine) {
+          requireText = '\r\n' + typeText + '\r\n' + useText;
+          editBuilder.insert(
+            new vscode.Position(importIndex, textEditor.document.lineAt(importIndex).text.length),
+            requireText
+          );
+        } else if (hastTypeLine) {
+          editBuilder.insert(
+            new vscode.Position(hastTypeLine, textEditor.document.lineAt(hastTypeLine).text.length),
+            requireText
+          );
+        }
+      }
+    }
+
+    function addType(editBuilder: vscode.TextEditorEdit, textEditor: vscode.TextEditor) {
+      const alreadyHasType = that.alreadyHasType(that.textEditor.document, importIndex, fileInfo);
+      const HAS_TYPE_IMPORT = !isNil(importIndex);
+      const HAS_CONSTANT = !isNil(hasImportConst);
+      const WITHOUT_TYPE = isNil(alreadyHasType);
+      if (WITHOUT_TYPE) {
+        if (HAS_TYPE_IMPORT && HAS_CONSTANT) {
+          const lineBeforeConst = importIndex - 1;
+          const typeTextLine = '\r\n' + typeText;
+          editBuilder.insert(new vscode.Position(lineBeforeConst, 0), typeTextLine);
+        } else if (HAS_TYPE_IMPORT && !HAS_CONSTANT) {
+          const typeTextLine = '\r\n' + typeText;
+          editBuilder.insert(new vscode.Position(importIndex, textEditor.document.lineAt(importIndex).text.length), typeTextLine);
+        }
+      }
+    }
+
+    function addTypeDefinition(editBuilder: vscode.TextEditorEdit, textEditor) {
+      const putTypeDefLine = that.getTypeDefLine(that.textEditor.document, INITIAL_LINE, fileInfo);
+      const alreadyHasTypeDefinition = that.alreadyHasTypedefinition(that.textEditor.document, importIndex, fileInfo);
+      if (isNil(alreadyHasTypeDefinition) && !isNil(putTypeDefLine)) {
+        const LINE_TEXT = textEditor.document.lineAt(putTypeDefLine).text;
+        const typeDefinitionText = that.generateTypedef(fileInfo, allClassesFiles);
+        console.log('Typedef:', typeDefinitionText);
         editBuilder.insert(
           new vscode.Position(
-            putTypedefLine,
-            this.textEditor.document.lineAt(putTypedefLine).text.length
+            putTypeDefLine,
+            LINE_TEXT.length
           ),
-          '\r\n' + typedefText
+          '\r\n' + typeDefinitionText
         );
       }
-      if (!hasAdonisUse && useLine) {
-        let requireText = '\r\n' + constUseText;
-        if (!hasTypeLine) {
-          requireText = '\r\n' + typeText + '\r\n' + constUseText;
-        }
-        editBuilder.insert(
-          new vscode.Position(useLine, this.textEditor.document.lineAt(useLine).text.length),
-          requireText
-        );
-      }
-      if (useLine && !hasTypeLine && hasAdonisUse) {
-        const lineBeforeConst = useLine;
-        const typeTextLine = typeText + '\r\n';
-        editBuilder.insert(new vscode.Position(lineBeforeConst, 0), typeTextLine);
-      }
+    }
+    return that.textEditor.edit((editBuilder: vscode.TextEditorEdit) => {
+      addType(editBuilder, that.textEditor);
+      addConst(editBuilder, that.textEditor);
+      addTypeDefinition(editBuilder, that.textEditor);
     });
   }
 
-  private hasUseStatement(
+  private alreadyHasRequire(
     classInfo: AdonisFileInfo,
     initialScanLine = 0,
     textDocument: vscode.TextDocument
   ) {
-    const classUseStatementRegex = this.generateUseRegex(classInfo);
+    const classUseStatementRegex = this.generateConstRegex(classInfo);
     const isClassDefinitionLine = this.getClassDeclarationRegex();
     let idxLine = initialScanLine;
     while (idxLine < textDocument.lineCount) {
@@ -114,7 +147,7 @@ export default class DocumentWriterGateway {
 
   private getConstDeclarationRegex() {
     // eslint-disable-next-line no-control-regex, no-useless-escape
-    return /(let|const)[\s\t]*([A-z0-9]+)[\s\t]*\=[\s\t]*/gim;
+    return /(let|const)[\s\t]*([A-z0-9]+).*\=.*(\(.*\))/gim;
   }
   private getTypeDefLine(
     textDocument: vscode.TextDocument,
@@ -122,21 +155,29 @@ export default class DocumentWriterGateway {
     classInfo: AdonisFileInfo
   ) {
     const lineToInsert = INITIAL_LINE;
-    let idxLine = 1;
+    let idxLine = 0;
     let firstLineEmpty = null;
     let firstTypedefImport = null;
     let allreadyImport = null;
     while (idxLine < textDocument.lineCount) {
       const currentLine = textDocument.lineAt(idxLine);
+      const currentText = currentLine.text;
+      const alreadyHaveTypedefs = /typedef/im.test(currentText);
+      const hasUseStrict = /(use strict)/gmi.test(currentText);
+
+      if (hasUseStrict) {
+        return idxLine;
+      }
+
       if (currentLine.isEmptyOrWhitespace && !firstLineEmpty) {
         firstLineEmpty = idxLine; // line to insert is equal empty_line `-1`
       }
-      if (currentLine.text.match(/typedef/im) && !firstTypedefImport) {
+      if (alreadyHaveTypedefs && !firstTypedefImport) {
         firstTypedefImport = idxLine; // line to insert is equal empty_line `-1`
       }
-      const typedefRegex = this.generateTypedefRegex(classInfo);
+      const currentTypedefRegex = this.generateTypedefRegex(classInfo);
       // eslint-disable-next-line no-useless-escape
-      if (currentLine.text.match(RegExp(typedefRegex, 'mi')) && !allreadyImport) {
+      if (currentTypedefRegex.test(currentText) && !allreadyImport) {
         allreadyImport = idxLine; // line to insert is equal empty_line `-1`
       }
       idxLine++;
@@ -212,7 +253,7 @@ export default class DocumentWriterGateway {
    * @param  {number} lineOfConstRequire
    * @param  {AdonisFileInfo} classInfo
    */
-  private hasTypeDef(
+  private alreadyHasTypedefinition(
     textDocument: vscode.TextDocument,
     lineOfConstRequire: number,
     classInfo: AdonisFileInfo
@@ -220,7 +261,29 @@ export default class DocumentWriterGateway {
     const classUseStatementRegex = this.generateTypedefRegex(classInfo);
     const isClassDefinitionLine = this.getClassDeclarationRegex();
 
-    let idxLine = lineOfConstRequire;
+    let idxLine = 0;
+    while (idxLine < textDocument.lineCount) {
+      const currentLine: vscode.TextLine = textDocument.lineAt(idxLine);
+      if (classUseStatementRegex.test(currentLine.text)) {
+        // allreadyFound line to insert
+        return idxLine;
+      }
+      if (isClassDefinitionLine.test(currentLine.text)) {
+        return null;
+      }
+      idxLine++;
+    }
+    return null;
+  }
+  private alreadyHasType(
+    textDocument: vscode.TextDocument,
+    lineOfConstRequire: number,
+    classInfo: AdonisFileInfo
+  ) {
+    const classUseStatementRegex = this.generateTypeRegex(classInfo);
+    const isClassDefinitionLine = this.getClassDeclarationRegex();
+
+    let idxLine = 0;
     while (idxLine < textDocument.lineCount) {
       const currentLine: vscode.TextLine = textDocument.lineAt(idxLine);
       if (classUseStatementRegex.test(currentLine.text)) {
@@ -235,24 +298,28 @@ export default class DocumentWriterGateway {
     return null;
   }
 
-  private hasTypeLine(
+  private getConstIdx(
     textDocument: vscode.TextDocument,
     lineOfConstRequire: number,
     classInfo: AdonisFileInfo
   ) {
+    const isClassDefinitionLine = /(^class[\s\t]+)/im;
     const typeStatementRegex = this.generateTypeRegex(classInfo);
-    const isClassDefinitionLine = /class(.*)\{/im;
-    let idxLine = lineOfConstRequire;
-    while (idxLine < textDocument.lineCount) {
-      const currentLine: vscode.TextLine = textDocument.lineAt(idxLine);
-      if (typeStatementRegex.test(currentLine.text)) {
+    const someConstImport = this.getConstDeclarationRegex();
+    let lineIdx = 0;
+    while (lineIdx < textDocument.lineCount) {
+      const text = textDocument.lineAt(lineIdx).text;
+      if (someConstImport.test(text)) {
+        return lineIdx;
+      }
+      if (typeStatementRegex.test(text)) {
         // allreadyFound line to insert
-        return idxLine;
+        return lineIdx;
       }
-      if (isClassDefinitionLine.test(currentLine.text)) {
-        return null;
+      if (isClassDefinitionLine.test(text)) {
+        return lineIdx - 1;
       }
-      idxLine++;
+      lineIdx += 1;
     }
     return null;
   }
@@ -274,18 +341,15 @@ export default class DocumentWriterGateway {
     if (importPath && importPath.includes('Models')) {
       importSuffix = 'typeof ';
     }
-    const template = `/** @typedef {${importSuffix}import('${importPath || null}')} ${
-      classInfo.onlyName || null
-    }*/`;
+    const template = `/** @typedef {${importSuffix}import('${importPath || null}')} ${classInfo.onlyName || null
+      } */`;
     return template;
   }
 
-  private generateUseRegex(classInfo: AdonisFileInfo): RegExp {
+  private generateConstRegex(classInfo: AdonisFileInfo): RegExp {
     return RegExp(
       // eslint-disable-next-line no-useless-escape
-      `(const|let) ${classInfo?.onlyName ?? null} = use\\('${
-        classInfo?.getUsePath()?.split('\\/')?.join('/') ?? null
-      }'\\)`,
+      `((const|let)(.*${classInfo?.onlyName ?? null}.*=.*use\\(\\'.*${classInfo.onlyName}.*\\'.*\\)))`,
       'mi'
     );
   }
@@ -293,7 +357,7 @@ export default class DocumentWriterGateway {
   private generateTypedefRegex(classInfo: AdonisFileInfo): RegExp {
     return RegExp(
       // eslint-disable-next-line no-useless-escape
-      `[\/*\s]*@typedef.*${classInfo.name}.*${classInfo.onlyName}.*\\*\/`,
+      `(.*@typedef.*\\{.*\\/${classInfo.onlyName}.*\\s${classInfo.onlyName}\\s)`,
       'mi'
     );
   }
@@ -314,6 +378,6 @@ export default class DocumentWriterGateway {
     return `const ${declarationName} = use('${classInfo.getUsePath() || null}')`;
   }
   private generateTypeText(classInfo: AdonisFileInfo): any {
-    return `/** @type {${classInfo.onlyName || null}}*/`;
+    return `/** @type {${classInfo.onlyName || null}} */`;
   }
 }

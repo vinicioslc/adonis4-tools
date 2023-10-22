@@ -10,27 +10,27 @@ export async function importClassToFile(classLabel: string = null, fileName: str
   const opennedUri = await openExistingFile(fileName);
   const initialTextToBeRestored = await getCurrentFileString();
   const resetAllChanges = async function () {
-    await vscode.window.activeTextEditor.edit((editBuilder: vscode.TextEditorEdit) => {
+    await vscode?.window?.activeTextEditor?.edit((editBuilder: vscode.TextEditorEdit) => {
       editBuilder.replace(
         new vscode.Range(
           // first line first character
           new vscode.Position(0, 0),
           // last line last character
-          new vscode.Position(vscode.window.activeTextEditor.document.lineCount, 999)
+          new vscode.Position(vscode?.window?.activeTextEditor?.document?.lineCount, 999)
         ),
         initialTextToBeRestored // new text to put on document
       );
     });
-    await vscode.window.activeTextEditor.document.save();
+    await vscode?.window?.activeTextEditor?.document.save();
   };
   try {
     const fakeFilePicker = new FakeFilePicker(vscode.window.showQuickPick);
     fakeFilePicker.setFilterFunction(classLabel);
     const classResolver = new ClassResolverGateway(vscode.workspace.findFiles);
 
-    const documentWritter = new DocumentWriterGateway(vscode.window.activeTextEditor);
+    const documentWritter = new DocumentWriterGateway(vscode?.window?.activeTextEditor);
     await new UserSelectAdonisClassCase(fakeFilePicker, classResolver, documentWritter).execute();
-    await vscode.window.activeTextEditor.document.save();
+    await vscode?.window?.activeTextEditor?.document.save();
   } catch (error) {
     // on error revert all unecessary changes
 
@@ -70,7 +70,7 @@ export async function openFilePicker(optionToSelect = 0) {
 }
 
 export async function getCurrentFileString() {
-  const editor = vscode.window.activeTextEditor;
+  const editor = vscode?.window?.activeTextEditor;
 
   if (editor) {
     const document = editor.document;

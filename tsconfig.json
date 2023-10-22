@@ -11,8 +11,9 @@
     "sourceMap": true
   },
   "include": [
-    "src"
-, "src/test/.sample-project"  ],
+    "src",
+    "src/test/.sample-project"
+  ],
   "exclude": [
     "node_modules",
     ".vscode-test"
