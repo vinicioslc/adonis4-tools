@@ -1,5 +1,17 @@
 # Changelog
 
+<a name="0.2.13"></a>
+## 0.2.13 (2022-10-30)
+
+### Added
+
+- ✨ feat(import-framework): add resolver for embedded adonisjs framework files ([#16](https://github.com/vinicioslc/adonis4-tools/issues/16)) [[26877a2](https://github.com/vinicioslc/adonis4-tools/commit/26877a24a4a428ebde6e91126a7da364993ea722)]
+
+### Miscellaneous
+
+- 📝 docs(commit): add emoji to commits and changelog generator [[fc11167](https://github.com/vinicioslc/adonis4-tools/commit/fc1116782711256f5ef74a433a643ef2dcabdb10)]
+
+
 <a name="0.2.12"></a>
 ## 0.2.12 (2022-10-28)
 

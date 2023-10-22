@@ -118,4 +118,28 @@ module.exports = VirtualSealController
     );
     await revertChangesFn();
   });
+
+
+
+  test('Should Import Framework Typings Correctly', async function () {
+    this.timeout(10000);
+    const revertChangesFn = await helper.importClassToFile(
+      'Database',
+      'app/Controllers/Http/EmptyController.js'
+    );
+    const afterText = await helper.getCurrentFileString();
+
+    assert.strictEqual(
+      afterText,
+      `'use strict'
+
+class EmptyController {
+  async index({ request, response, view }) {}
+}
+
+module.exports = EmptyController
+`
+    );
+    await revertChangesFn();
+  });
 });
